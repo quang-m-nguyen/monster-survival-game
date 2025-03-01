@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Monster Survival Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+      background: #222;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("Game initializing...");
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        console.error("Canvas context not found!");
+        return;
+      }
+      
+      // Track key states
+      let keys = {};
+
+      // Game state
+      let score = 0;
+      let gameOver = false;
+
+      // World settings
+      const worldSize = {
+        width: 3000,
+        height: 3000
+      };
+
+      // Ground setup
+      const ground = {
+        color: '#3c3'
+      };
+
+      // Player setup
+      const player = {
+        x: worldSize.width / 2, // Start in the middle of the world
+        y: worldSize.height / 2,
+        width: 40,
+        height: 40,
+        speed: 5,
+        color: 'white',
+        shootCooldown: 0,
+        health: 100,
+        maxHealth: 100,
+        direction: 'right' // Current facing direction: 'right', 'left', 'up', 'down'
+      };
+
+      // Camera/viewport offset
+      let cameraOffsetX = player.x - canvas.width / 2;
+      let cameraOffsetY = player.y - canvas.height / 2;
+
+      // Monsters array
+      let monsters = [];
+      
+      // Monster settings
+      const monsterSettings = {
+        minWidth: 30,
+        maxWidth: 50,
+        minHeight: 30,
+        maxHeight: 50,
+        speed: 2,
+        spawnRate: 120, // Frames between monster spawns
+        spawnCounter: 0,
+        maxMonsters: 20,
+        color: '#f55'
+      };
+
+      // Bullets array
+      let bullets = [];
+      
+      // Bullet settings
+      const bulletSettings = {
+        width: 10,
+        height: 5,
+        speed: 15,
+        color: '#ff0',
+        cooldown: 15, // Frames between shots
+        range: 500 // Maximum bullet travel distance
+      };
+
+      // Generate a new monster from a random direction
+      function generateMonster() {
+        if (monsters.length >= monsterSettings.maxMonsters) return;
+        
+        const width = Math.floor(Math.random() * (monsterSettings.maxWidth - monsterSettings.minWidth + 1)) + monsterSettings.minWidth;
+        const height = Math.floor(Math.random() * (monsterSettings.maxHeight - monsterSettings.minHeight + 1)) + monsterSettings.minHeight;
+        
+        // Determine spawn position (outside the visible area)
+        let x, y;
+        const spawnSide = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+        
+        switch(spawnSide) {
+          case 0: // Top
+            x = Math.random() * worldSize.width;
+            y = Math.max(0, cameraOffsetY - height * 2);
+            break;
+          case 1: // Right
+            x = Math.min(worldSize.width, cameraOffsetX + canvas.width + width * 2);
+            y = Math.random() * worldSize.height;
+            break;
+          case 2: // Bottom
+            x = Math.random() * worldSize.width;
+            y = Math.min(worldSize.height, cameraOffsetY + canvas.height + height * 2);
+            break;
+          case 3: // Left
+            x = Math.max(0, cameraOffsetX - width * 2);
+            y = Math.random() * worldSize.height;
+            break;
+        }
+        
+        // Ensure monster is within world bounds
+        x = Math.max(0, Math.min(worldSize.width - width, x));
+        y = Math.max(0, Math.min(worldSize.height - height, y));
+        
+        monsters.push({
+          x,
+          y,
+          width,
+          height,
+          speed: monsterSettings.speed,
+          health: 20
+        });
+      }
+
+      // Event listeners for key presses
+      window.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+        
+        // Fire bullet when pressing space
+        if (e.key === ' ' && player.shootCooldown <= 0) {
+          // Create a new bullet based on player direction
+          let bulletX = player.x;
+          let bulletY = player.y + player.height / 2 - bulletSettings.height / 2;
+          let velocityX = 0;
+          let velocityY = 0;
+          
+          switch(player.direction) {
+            case 'right':
+              bulletX = player.x + player.width;
+              velocityX = bulletSettings.speed;
+              break;
+            case 'left':
+              bulletX = player.x - bulletSettings.width;
+              velocityX = -bulletSettings.speed;
+              break;
+            case 'up':
+              bulletX = player.x + player.width / 2 - bulletSettings.width / 2;
+              bulletY = player.y - bulletSettings.height;
+              velocityY = -bulletSettings.speed;
+              break;
+            case 'down':
+              bulletX = player.x + player.width / 2 - bulletSettings.width / 2;
+              bulletY = player.y + player.height;
+              velocityY = bulletSettings.speed;
+              break;
+          }
+          
+          bullets.push({
+            x: bulletX,
+            y: bulletY,
+            width: bulletSettings.width,
+            height: bulletSettings.height,
+            velocityX,
+            velocityY,
+            distance: 0
+          });
+          
+          // Set cooldown
+          player.shootCooldown = bulletSettings.cooldown;
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+      });
+
+      // Check for collision between two objects
+      function checkCollision(obj1, obj2) {
+        return obj1.x < obj2.x + obj2.width &&
+               obj1.x + obj1.width > obj2.x &&
+               obj1.y < obj2.y + obj2.height &&
+               obj1.y + obj1.height > obj2.y;
+      }
+
+      // Update game state
+      function update() {
+        if (gameOver) return;
+        
+        // Decrease shoot cooldown
+        if (player.shootCooldown > 0) {
+          player.shootCooldown--;
+        }
+        
+        // Update player position based on key presses
+        let playerMoved = false;
+        
+        if (keys['ArrowRight'] || keys['d']) {
+          player.x += player.speed;
+          player.direction = 'right';
+          playerMoved = true;
+        }
+        
+        if (keys['ArrowLeft'] || keys['a']) {
+          player.x -= player.speed;
+          player.direction = 'left';
+          playerMoved = true;
+        }
+        
+        if (keys['ArrowUp'] || keys['w']) {
+          player.y -= player.speed;
+          player.direction = 'up';
+          playerMoved = true;
+        }
+        
+        if (keys['ArrowDown'] || keys['s']) {
+          player.y += player.speed;
+          player.direction = 'down';
+          playerMoved = true;
+        }
+        
+        // Keep player within world bounds
+        player.x = Math.max(0, Math.min(worldSize.width - player.width, player.x));
+        player.y = Math.max(0, Math.min(worldSize.height - player.height, player.y));
+        
+        // Update camera to follow player
+        cameraOffsetX = player.x - canvas.width / 2;
+        cameraOffsetY = player.y - canvas.height / 2;
+        
+        // Keep camera within world bounds
+        cameraOffsetX = Math.max(0, Math.min(worldSize.width - canvas.width, cameraOffsetX));
+        cameraOffsetY = Math.max(0, Math.min(worldSize.height - canvas.height, cameraOffsetY));
+        
+        // Spawn monsters
+        monsterSettings.spawnCounter++;
+        if (monsterSettings.spawnCounter >= monsterSettings.spawnRate) {
+          generateMonster();
+          monsterSettings.spawnCounter = 0;
+        }
+        
+        // Update monsters
+        for (let i = 0; i < monsters.length; i++) {
+          const monster = monsters[i];
+          
+          // Move monster towards player
+          const dx = player.x - monster.x;
+          const dy = player.y - monster.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance > 0) {
+            monster.x += (dx / distance) * monster.speed;
+            monster.y += (dy / distance) * monster.speed;
+          }
+          
+          // Check for collision with player
+          if (checkCollision(player, monster)) {
+            player.health -= 1;
+            
+            // Push player away slightly
+            player.x += (player.x - monster.x) * 0.1;
+            player.y += (player.y - monster.y) * 0.1;
+            
+            // Keep player within bounds after push
+            player.x = Math.max(0, Math.min(worldSize.width - player.width, player.x));
+            player.y = Math.max(0, Math.min(worldSize.height - player.height, player.y));
+            
+            if (player.health <= 0) {
+              gameOver = true;
+              console.log("Game Over! Score: " + score);
+            }
+          }
+        }
+        
+        // Update bullets
+        for (let i = 0; i < bullets.length; i++) {
+          const bullet = bullets[i];
+          
+          // Move bullet
+          bullet.x += bullet.velocityX;
+          bullet.y += bullet.velocityY;
+          
+          // Update distance traveled
+          bullet.distance += Math.sqrt(bullet.velocityX * bullet.velocityX + bullet.velocityY * bullet.velocityY);
+          
+          // Remove bullets that are off screen or exceed range
+          if (bullet.x < 0 || bullet.x > worldSize.width || 
+              bullet.y < 0 || bullet.y > worldSize.height ||
+              bullet.distance > bulletSettings.range) {
+            bullets.splice(i, 1);
+            i--;
+            continue;
+          }
+          
+          // Check for collision with monsters
+          for (let j = 0; j < monsters.length; j++) {
+            if (checkCollision(bullet, monsters[j])) {
+              // Damage monster
+              monsters[j].health -= 10;
+              
+              // Remove bullet
+              bullets.splice(i, 1);
+              i--;
+              
+              // Remove monster if health <= 0
+              if (monsters[j].health <= 0) {
+                monsters.splice(j, 1);
+                j--;
+                
+                // Increase score
+                score += 10;
+                
+                // Increase spawn rate as score increases
+                if (score % 50 === 0 && monsterSettings.spawnRate > 30) {
+                  monsterSettings.spawnRate -= 10;
+                }
+              }
+              
+              break;
+            }
+          }
+        }
+      }
+
+      // Draw everything on the canvas
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw ground/background
+        ctx.fillStyle = ground.color;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw grid for visual reference
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1;
+        
+        // Vertical grid lines
+        for (let x = 0; x < worldSize.width; x += 100) {
+          const screenX = x - cameraOffsetX;
+          if (screenX >= 0 && screenX <= canvas.width) {
+            ctx.beginPath();
+            ctx.moveTo(screenX, 0);
+            ctx.lineTo(screenX, canvas.height);
+            ctx.stroke();
+          }
+        }
+        
+        // Horizontal grid lines
+        for (let y = 0; y < worldSize.height; y += 100) {
+          const screenY = y - cameraOffsetY;
+          if (screenY >= 0 && screenY <= canvas.height) {
+            ctx.beginPath();
+            ctx.moveTo(0, screenY);
+            ctx.lineTo(canvas.width, screenY);
+            ctx.stroke();
+          }
+        }
+        
+        // Draw world boundaries
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-cameraOffsetX, -cameraOffsetY, worldSize.width, worldSize.height);
+        
+        // Draw monsters
+        ctx.fillStyle = monsterSettings.color;
+        monsters.forEach(monster => {
+          const screenX = monster.x - cameraOffsetX;
+          const screenY = monster.y - cameraOffsetY;
+          
+          // Only draw monsters that are on screen
+          if (screenX + monster.width > 0 && screenX < canvas.width &&
+              screenY + monster.height > 0 && screenY < canvas.height) {
+            ctx.fillRect(screenX, screenY, monster.width, monster.height);
+            
+            // Draw monster health bar
+            const healthPercent = monster.health / 20;
+            ctx.fillStyle = '#900';
+            ctx.fillRect(screenX, screenY - 10, monster.width, 5);
+            ctx.fillStyle = '#090';
+            ctx.fillRect(screenX, screenY - 10, monster.width * healthPercent, 5);
+          }
+        });
+        
+        // Draw bullets
+        ctx.fillStyle = bulletSettings.color;
+        bullets.forEach(bullet => {
+          const screenX = bullet.x - cameraOffsetX;
+          const screenY = bullet.y - cameraOffsetY;
+          
+          // Only draw bullets that are on screen
+          if (screenX + bullet.width > 0 && screenX < canvas.width &&
+              screenY + bullet.height > 0 && screenY < canvas.height) {
+            ctx.fillRect(screenX, screenY, bullet.width, bullet.height);
+          }
+        });
+        
+        // Draw player
+        ctx.fillStyle = player.color;
+        ctx.fillRect(player.x - cameraOffsetX, player.y - cameraOffsetY, player.width, player.height);
+        
+        // Draw player direction indicator
+        ctx.fillStyle = '#0ff';
+        switch(player.direction) {
+          case 'right':
+            ctx.fillRect(player.x - cameraOffsetX + player.width, player.y - cameraOffsetY + player.height / 2 - 2, 10, 4);
+            break;
+          case 'left':
+            ctx.fillRect(player.x - cameraOffsetX - 10, player.y - cameraOffsetY + player.height / 2 - 2, 10, 4);
+            break;
+          case 'up':
+            ctx.fillRect(player.x - cameraOffsetX + player.width / 2 - 2, player.y - cameraOffsetY - 10, 4, 10);
+            break;
+          case 'down':
+            ctx.fillRect(player.x - cameraOffsetX + player.width / 2 - 2, player.y - cameraOffsetY + player.height, 4, 10);
+            break;
+        }
+        
+        // Draw player health bar
+        const healthPercent = player.health / player.maxHealth;
+        ctx.fillStyle = '#900';
+        ctx.fillRect(20, canvas.height - 30, 200, 20);
+        ctx.fillStyle = '#090';
+        ctx.fillRect(20, canvas.height - 30, 200 * healthPercent, 20);
+        ctx.strokeStyle = '#fff';
+        ctx.strokeRect(20, canvas.height - 30, 200, 20);
+        
+        // Draw score and position
+        ctx.fillStyle = 'white';
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('Score: ' + score, 20, 30);
+        ctx.fillText('Position: ' + Math.floor(player.x) + ', ' + Math.floor(player.y), 20, 60);
+        ctx.fillText('Monsters: ' + monsters.length, 20, 90);
+        
+        // Draw game over message
+        if (gameOver) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          ctx.fillStyle = 'white';
+          ctx.font = '48px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+          
+          ctx.font = '24px Arial';
+          ctx.fillText('Score: ' + score, canvas.width / 2, canvas.height / 2 + 50);
+          ctx.fillText('Press R to restart', canvas.width / 2, canvas.height / 2 + 90);
+        }
+      }
+
+      // Restart game
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'r' && gameOver) {
+          // Reset game state
+          gameOver = false;
+          score = 0;
+          player.x = worldSize.width / 2;
+          player.y = worldSize.height / 2;
+          player.health = player.maxHealth;
+          player.shootCooldown = 0;
+          player.direction = 'right';
+          
+          // Reset camera
+          cameraOffsetX = player.x - canvas.width / 2;
+          cameraOffsetY = player.y - canvas.height / 2;
+          
+          // Reset bullets
+          bullets = [];
+          
+          // Reset monsters
+          monsters = [];
+          monsterSettings.spawnCounter = 0;
+          monsterSettings.spawnRate = 120;
+        }
+      });
+
+      // Game loop
+      function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+      
+      console.log("Starting game loop...");
+      gameLoop();
+    });
+  </script>
+</body>
+</html>
