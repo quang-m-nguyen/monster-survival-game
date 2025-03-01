@@ -34,6 +34,94 @@
       // Game state
       let score = 0;
       let gameOver = false;
+      
+      // Level system
+      const levelSystem = {
+        currentLevel: 1,
+        monstersKilled: 0,
+        monstersToNextLevel: 1, // Start with 1 monster to reach level 2
+        levelUpMessage: "",
+        levelUpMessageTimer: 0,
+        levelUpMessageDuration: 120, // 2 seconds at 60 FPS
+        
+        // Calculate monsters needed for next level (exponential growth)
+        calculateMonstersForNextLevel: function() {
+          return Math.pow(2, this.currentLevel - 1);
+        },
+        
+        // Handle monster kill and check for level up
+        handleMonsterKill: function() {
+          this.monstersKilled++;
+          
+          // Check if player should level up
+          if (this.monstersKilled >= this.monstersToNextLevel) {
+            this.currentLevel++;
+            this.monstersKilled = 0;
+            this.monstersToNextLevel = this.calculateMonstersForNextLevel();
+            
+            // Display level up message
+            this.levelUpMessage = "LEVEL UP! Level " + this.currentLevel;
+            this.levelUpMessageTimer = this.levelUpMessageDuration;
+            
+            // Level up benefits
+            player.maxHealth += 10;
+            player.health = Math.min(player.health + 20, player.maxHealth); // Heal on level up
+            player.speed += 0.2; // Slight speed increase
+            
+            // Increase monster difficulty
+            monsterSettings.speed += 0.1;
+            
+            // Every 3 levels, increase bullet damage
+            if (this.currentLevel % 3 === 0) {
+              bulletSettings.damage += 5;
+            }
+            
+            return true;
+          }
+          
+          return false;
+        },
+        
+        // Update level up message timer
+        update: function() {
+          if (this.levelUpMessageTimer > 0) {
+            this.levelUpMessageTimer--;
+          }
+        },
+        
+        // Draw level information
+        draw: function(ctx) {
+          // Draw level info
+          ctx.fillStyle = 'white';
+          ctx.font = '24px Arial';
+          ctx.textAlign = 'left';
+          ctx.fillText('Level: ' + this.currentLevel, 20, 120);
+          ctx.fillText('Monsters to next level: ' + (this.monstersToNextLevel - this.monstersKilled), 20, 150);
+          
+          // Draw level progress bar
+          const progressWidth = 200;
+          const progressHeight = 10;
+          const progressX = 20;
+          const progressY = 160;
+          const progressPercent = this.monstersKilled / this.monstersToNextLevel;
+          
+          ctx.fillStyle = '#555';
+          ctx.fillRect(progressX, progressY, progressWidth, progressHeight);
+          ctx.fillStyle = '#0ff';
+          ctx.fillRect(progressX, progressY, progressWidth * progressPercent, progressHeight);
+          ctx.strokeStyle = '#fff';
+          ctx.strokeRect(progressX, progressY, progressWidth, progressHeight);
+          
+          // Draw level up message if active
+          if (this.levelUpMessageTimer > 0) {
+            const alpha = Math.min(1, this.levelUpMessageTimer / 60); // Fade out in the last second
+            ctx.fillStyle = `rgba(255, 255, 0, ${alpha})`;
+            ctx.font = '36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(this.levelUpMessage, canvas.width / 2, canvas.height / 3);
+          }
+        }
+      };
 
       // World settings
       const worldSize = {
@@ -90,7 +178,8 @@
         speed: 15,
         color: '#ff0',
         cooldown: 15, // Frames between shots
-        range: 500 // Maximum bullet travel distance
+        range: 500, // Maximum bullet travel distance
+        damage: 10 // Base damage per bullet
       };
 
       // Generate a new monster from a random direction
@@ -127,13 +216,17 @@
         x = Math.max(0, Math.min(worldSize.width - width, x));
         y = Math.max(0, Math.min(worldSize.height - height, y));
         
+        // Scale monster health with level
+        const monsterHealth = 20 + (levelSystem.currentLevel - 1) * 5;
+        
         monsters.push({
           x,
           y,
           width,
           height,
           speed: monsterSettings.speed,
-          health: 20
+          health: monsterHealth,
+          maxHealth: monsterHealth
         });
       }
 
@@ -201,6 +294,9 @@
       function update() {
         if (gameOver) return;
         
+        // Update level system
+        levelSystem.update();
+        
         // Decrease shoot cooldown
         if (player.shootCooldown > 0) {
           player.shootCooldown--;
@@ -245,9 +341,10 @@
         cameraOffsetX = Math.max(0, Math.min(worldSize.width - canvas.width, cameraOffsetX));
         cameraOffsetY = Math.max(0, Math.min(worldSize.height - canvas.height, cameraOffsetY));
         
-        // Spawn monsters
+        // Spawn monsters - adjust spawn rate based on level
         monsterSettings.spawnCounter++;
-        if (monsterSettings.spawnCounter >= monsterSettings.spawnRate) {
+        const adjustedSpawnRate = Math.max(30, monsterSettings.spawnRate - (levelSystem.currentLevel * 5));
+        if (monsterSettings.spawnCounter >= adjustedSpawnRate) {
           generateMonster();
           monsterSettings.spawnCounter = 0;
         }
@@ -268,7 +365,9 @@
           
           // Check for collision with player
           if (checkCollision(player, monster)) {
-            player.health -= 1;
+            // Damage scales with level
+            const monsterDamage = 1 + Math.floor(levelSystem.currentLevel / 3);
+            player.health -= monsterDamage;
             
             // Push player away slightly
             player.x += (player.x - monster.x) * 0.1;
@@ -280,7 +379,7 @@
             
             if (player.health <= 0) {
               gameOver = true;
-              console.log("Game Over! Score: " + score);
+              console.log("Game Over! Score: " + score + ", Level: " + levelSystem.currentLevel);
             }
           }
         }
@@ -309,7 +408,7 @@
           for (let j = 0; j < monsters.length; j++) {
             if (checkCollision(bullet, monsters[j])) {
               // Damage monster
-              monsters[j].health -= 10;
+              monsters[j].health -= bulletSettings.damage;
               
               // Remove bullet
               bullets.splice(i, 1);
@@ -321,12 +420,10 @@
                 j--;
                 
                 // Increase score
-                score += 10;
+                score += 10 * levelSystem.currentLevel;
                 
-                // Increase spawn rate as score increases
-                if (score % 50 === 0 && monsterSettings.spawnRate > 30) {
-                  monsterSettings.spawnRate -= 10;
-                }
+                // Handle level progression
+                levelSystem.handleMonsterKill();
               }
               
               break;
@@ -386,7 +483,7 @@
             ctx.fillRect(screenX, screenY, monster.width, monster.height);
             
             // Draw monster health bar
-            const healthPercent = monster.health / 20;
+            const healthPercent = monster.health / monster.maxHealth;
             ctx.fillStyle = '#900';
             ctx.fillRect(screenX, screenY - 10, monster.width, 5);
             ctx.fillStyle = '#090';
@@ -437,6 +534,12 @@
         ctx.strokeStyle = '#fff';
         ctx.strokeRect(20, canvas.height - 30, 200, 20);
         
+        // Draw health value
+        ctx.fillStyle = 'white';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(Math.ceil(player.health) + '/' + player.maxHealth, 120, canvas.height - 15);
+        
         // Draw score and position
         ctx.fillStyle = 'white';
         ctx.font = '24px Arial';
@@ -444,6 +547,9 @@
         ctx.fillText('Score: ' + score, 20, 30);
         ctx.fillText('Position: ' + Math.floor(player.x) + ', ' + Math.floor(player.y), 20, 60);
         ctx.fillText('Monsters: ' + monsters.length, 20, 90);
+        
+        // Draw level information
+        levelSystem.draw(ctx);
         
         // Draw game over message
         if (gameOver) {
@@ -453,10 +559,11 @@
           ctx.fillStyle = 'white';
           ctx.font = '48px Arial';
           ctx.textAlign = 'center';
-          ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+          ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 50);
           
           ctx.font = '24px Arial';
-          ctx.fillText('Score: ' + score, canvas.width / 2, canvas.height / 2 + 50);
+          ctx.fillText('Score: ' + score, canvas.width / 2, canvas.height / 2);
+          ctx.fillText('Level: ' + levelSystem.currentLevel, canvas.width / 2, canvas.height / 2 + 30);
           ctx.fillText('Press R to restart', canvas.width / 2, canvas.height / 2 + 90);
         }
       }
@@ -469,9 +576,24 @@
           score = 0;
           player.x = worldSize.width / 2;
           player.y = worldSize.height / 2;
-          player.health = player.maxHealth;
+          player.health = 100;
+          player.maxHealth = 100;
+          player.speed = 5;
           player.shootCooldown = 0;
           player.direction = 'right';
+          
+          // Reset level system
+          levelSystem.currentLevel = 1;
+          levelSystem.monstersKilled = 0;
+          levelSystem.monstersToNextLevel = levelSystem.calculateMonstersForNextLevel();
+          levelSystem.levelUpMessage = "";
+          levelSystem.levelUpMessageTimer = 0;
+          
+          // Reset bullet settings
+          bulletSettings.damage = 10;
+          
+          // Reset monster settings
+          monsterSettings.speed = 2;
           
           // Reset camera
           cameraOffsetX = player.x - canvas.width / 2;
