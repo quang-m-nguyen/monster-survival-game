@@ -1,5 +1,5 @@
 /**
- * Input handling module for the Retro Side Scroller game
+ * Input module for the Monster Survival Game
  */
 
 // Track key states
@@ -12,14 +12,9 @@ const Input = {
     window.addEventListener("keydown", (e) => {
       this.keys[e.key] = true;
 
-      // Jump with 'w' key, but only if not already jumping and on the ground
-      if (
-        e.key === "w" &&
-        !Player.jumping &&
-        Player.y + Player.height >= Game.ground.y - Game.cameraOffsetY - 5
-      ) {
-        Player.jumping = true;
-        Player.velocityY = -Player.jumpForce;
+      // Handle level up choices
+      if (LevelSystem.handleInput(e.key)) {
+        return;
       }
 
       // Fire bullet when pressing space
@@ -30,7 +25,7 @@ const Input = {
         Player.shootCooldown = Bullets.settings.cooldown;
       }
 
-      // Restart game
+      // Restart game when pressing R
       if (e.key === "r" && Game.gameOver) {
         Game.restart();
       }

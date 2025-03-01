@@ -1,19 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Retro Side Scroller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monster Survival Game</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  
-  <!-- Load game scripts -->
-  <script src="js/input.js"></script>
-  <script src="js/player.js"></script>
-  <script src="js/obstacles.js"></script>
-  <script src="js/bullets.js"></script>
-  <script src="js/renderer.js"></script>
-  <script src="js/game.js"></script>
+  <div class="container">
+    <h1>Monster Survival Game</h1>
+    <p>Survive against monsters coming from all directions!</p>
+    <div class="button-container">
+      <a href="game.html" class="play-button">Play Game</a>
+    </div>
+    <div class="instructions">
+      <h2>How to Play</h2>
+      <ul>
+        <li><strong>Movement:</strong> Use arrow keys or WASD to move</li>
+        <li><strong>Shooting:</strong> Press spacebar to shoot in the direction you're facing</li>
+        <li><strong>Goal:</strong> Survive as long as possible and level up</li>
+        <li><strong>Leveling:</strong> Kill monsters to level up and choose weapon upgrades</li>
+        <li><strong>Upgrades:</strong> Press 1, 2, or 3 to select an upgrade when leveling up</li>
+      </ul>
+    </div>
+  </div>
 </body>
 </html> 
