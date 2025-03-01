@@ -1,35 +1,26 @@
-# Monster Survival Game
+# Cosmic Defender: Space Survival
 
-A top-down survival game where you fight off endless waves of monsters while leveling up and upgrading your weapons.
+A fast-paced space survival game where you pilot an advanced spacecraft through the cosmic void, battling alien creatures while collecting upgrades to enhance your combat capabilities.
 
 ## Game Features
 
-- Free movement in all directions
-- Automatic shooting in four directions (up, down, left, right)
-- Toggle auto-fire on/off
-- Adjustable game speed (normal or 50% slower)
-- Monster spawning from all sides
-- Level-up system with weapon upgrades
-- Player and bullet size increases with level
-- Health system with life steal ability
-- Score tracking
-- Game over and restart functionality
-- Responsive design with mobile touch controls
-- Dynamic camera scaling for different screen sizes
+- **Immersive Sci-Fi Visuals**: Space-themed background with stars and nebula effects, futuristic spacecraft with shield and thruster animations, energy projectiles with glowing trails, and animated alien creatures.
+- **Responsive Controls**: Smooth keyboard controls for desktop and intuitive touch controls for mobile devices.
+- **Progressive Difficulty**: Aliens become stronger and more numerous as you survive longer.
+- **Weapon Upgrade System**: Collect upgrades to enhance your spacecraft's firepower, speed, and defenses.
+- **Score Tracking**: Keep track of your high score and try to beat it.
+- **Mobile Optimization**: Automatically detects mobile devices and enables touch controls.
+- **Adjustable game speed**: Toggle between normal and 50% slower speed.
 
 ## Controls
 
-### Desktop Controls
-- **WASD or Arrow Keys**: Move the player
-- **Auto-fire**: Automatically shoots in the current direction
-- **F**: Toggle auto-fire on/off
-- **G**: Toggle game speed between normal and 50% (50% slower)
-- **Space**: Shoot manually (even with auto-fire on)
-- **1, 2, 3, 4**: Select upgrade option when available
-- **Mouse**: Click on upgrade icons to apply upgrades
-- **R**: Restart the game when game over
+- **Movement (Desktop)**: Arrow keys or WASD to move the spacecraft
+- **Shooting (Desktop)**: Automatically shoots in the direction of movement
+- **Restart (Desktop)**: Press R to restart when game over
+- **Game Speed (Desktop)**: Press G to toggle game speed between normal and 50% (50% slower)
 
-### Mobile Controls
+## Mobile Controls
+
 - **Tap and Hold**: Tap anywhere on the screen to move the player toward that location
 - **Auto-fire**: Automatically shoots in the direction of movement
 - **Tap Upgrade Icons**: Tap on upgrade icons to apply upgrades
@@ -38,73 +29,56 @@ A top-down survival game where you fight off endless waves of monsters while lev
 ## Mobile Optimization
 
 The game automatically detects mobile devices and enables:
-- Touch controls for intuitive movement
-- Zoomed-out camera view to see more of the game world
-- Properly scaled UI elements for different screen sizes
-- Visual target indicator showing where the player is moving to
-- Responsive upgrade panel that adapts to screen size
+- Touch controls for intuitive gameplay
+- Zoomed-out camera view for better visibility
+- Properly scaled UI elements
+- Visual target indicator showing where you're moving
+- Responsive upgrade panel
 
 ## Level Progression
 
-As you level up:
-- Your character and bullets grow in size (up to 2x the original size)
-- You gain more health and slightly increased speed
-- You can choose from four different upgrades
-- Monsters become faster and more challenging
-
-The game features a balanced progression system:
-
-### Monster Requirements
-- **Early Game (Levels 1-5)**: Easy progression with 1-2 monsters per level
-- **Mid Game (Levels 6-10)**: Gradual increase from 3-5 monsters
-- **Late Game (Levels 11-20)**: Moderate increase from 6-10 monsters
-- **End Game (Level 21+)**: More significant scaling to prevent excessive leveling
-
-### Monster Difficulty
-The game implements a diminishing returns system for monster speed:
-- **Early Levels**: Normal speed increases
-- **Mid Levels**: Slightly reduced speed increases
-- **Higher Levels**: Minimal speed increases
-
-This creates a challenging but fair experience that remains playable even at higher levels.
+As you survive longer:
+1. Aliens spawn more frequently
+2. Aliens become faster and more resilient
+3. Special larger aliens appear with more health
+4. Score multiplier increases
 
 ## Weapon Upgrade System
 
-When you level up, upgrade options appear in the bottom-left corner of the screen. You can continue playing and apply upgrades whenever you want by pressing the corresponding number key or clicking/tapping on the icon. Upgrades will stack if not used immediately.
-
-Available upgrades:
-
-1. **Attack Speed**: Decreases the cooldown between shots
-2. **Attack Damage**: Increases the damage dealt by each bullet
-3. **Life Steal**: Increases health recovery when killing monsters
-4. **Multi-Shot**: Adds an additional bullet stream, allowing you to fire in multiple directions simultaneously
+Collect upgrades that appear randomly to enhance your spacecraft:
+- **Damage**: Increases the damage of your energy projectiles
+- **Fire Rate**: Increases how quickly you can fire
+- **Speed**: Increases your movement speed
+- **Health**: Restores and increases your maximum health
+- **Life Steal**: Gain health when defeating aliens
 
 ## Project Structure
 
-The game is built with a modular JavaScript architecture:
-
-- **game.js**: Main game module that initializes and coordinates all other modules
-- **renderer.js**: Handles all drawing operations and camera management
-- **player.js**: Manages player state, movement, and rendering
-- **bullets.js**: Handles bullet creation, movement, and collision detection
-- **monsters.js**: Controls monster spawning, movement, and behavior
-- **levelSystem.js**: Manages player progression, level-ups, and weapon upgrades
-- **input.js**: Processes keyboard and touch input for game controls
+- **index.html**: Main entry point with game description and instructions
+- **game.html**: The game canvas and loading of game scripts
+- **styles.css**: Basic styling for the HTML pages
+- **js/game.js**: Main game loop and initialization
+- **js/player.js**: Player spacecraft logic and rendering
+- **js/bullets.js**: Projectile management and collision detection
+- **js/monsters.js**: Alien creature spawning and behavior
+- **js/upgrades.js**: Upgrade system implementation
+- **js/input.js**: Processes keyboard and touch input for game controls
+- **js/renderer.js**: Handles drawing operations and camera management
+- **js/ui.js**: User interface elements like health bar and score display
 
 ## Development
 
-This game is built using vanilla JavaScript and HTML5 Canvas, with no external dependencies.
-
 To run the game locally:
+1. Clone this repository
+2. Open index.html in a web browser
+3. Click "Play Game" to start
 
-1. Clone the repository
-2. Open index.html in your browser
-3. Click "Play" to start the game
+No build process or dependencies required - pure JavaScript, HTML and CSS.
 
 ## Future Enhancements
 
-- Additional weapon types
-- More monster varieties
-- Power-ups and special abilities
-- Local high score storage
-- Customizable controls 
+- Additional spacecraft types with unique abilities
+- More alien varieties with different attack patterns
+- Power-up system with temporary special abilities
+- Boss battles at milestone scores
+- Local multiplayer support 

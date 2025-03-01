@@ -1,5 +1,5 @@
 /**
- * Main Game module for the Monster Survival Game
+ * Main Game module for the Micro Defender Game
  */
 
 const Game = {
@@ -10,6 +10,7 @@ const Game = {
   gameOver: false,
   gamePaused: false,
   gameSpeedMultiplier: 0.5, // 50% of normal speed (50% slower)
+  frameCount: 0, // Add frameCount to track frames for spawning
 
   // World settings
   worldSize: {
@@ -47,6 +48,9 @@ const Game = {
       return;
     }
 
+    // Reset frame count
+    this.frameCount = 0;
+
     // Initialize modules
     Renderer.init(this.canvas, this.worldSize);
     Input.init();
@@ -79,6 +83,9 @@ const Game = {
   // Update game state
   update: function () {
     if (this.gameOver || this.gamePaused) return;
+
+    // Increment frame count
+    this.frameCount++;
 
     // Update player
     Player.update();

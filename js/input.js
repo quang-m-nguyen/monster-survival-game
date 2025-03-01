@@ -58,7 +58,11 @@ const Input = {
 
       // Manual fire with space (even with auto-fire enabled)
       if (e.key === " " && Player.shootCooldown <= 0) {
-        Bullets.create();
+        if (!this.isMobile) {
+          Bullets.createTowardsMouse();
+        } else {
+          Bullets.create();
+        }
       }
 
       // Restart game when pressing R
@@ -88,9 +92,22 @@ const Input = {
         return; // Click was handled by upgrade panel
       }
 
-      // If not on mobile, don't handle movement clicks
-      if (!this.isMobile) return;
+      // If game is over, restart on click
+      if (Game.gameOver) {
+        Game.restart();
+        return;
+      }
 
+      // If not on mobile, handle shooting on click
+      if (!this.isMobile) {
+        // Manual fire with mouse click
+        if (Player.shootCooldown <= 0) {
+          Bullets.createTowardsMouse();
+        }
+        return;
+      }
+
+      // If we get here, we're on mobile, so handle movement
       // Convert screen coordinates to world coordinates for movement
       this.handleMovementInput(clickX, clickY);
     });
@@ -151,18 +168,17 @@ const Input = {
 
   // Handle movement input (touch or click)
   handleMovementInput: function (screenX, screenY) {
-    // Convert screen coordinates to world coordinates
-    const worldX = screenX * Renderer.zoomFactor + Renderer.cameraOffsetX;
-    const worldY = screenY * Renderer.zoomFactor + Renderer.cameraOffsetY;
+    // Convert screen coordinates to world coordinates using the Renderer method
+    const worldPos = Renderer.screenToWorld(screenX, screenY);
 
     // Set target position
-    this.touchTargetX = worldX;
-    this.touchTargetY = worldY;
+    this.touchTargetX = worldPos.x;
+    this.touchTargetY = worldPos.y;
 
     // Show a visual indicator at the target position (optional)
     Game.showMessage("Moving to target", 30);
 
-    console.log(`Movement target set: ${worldX}, ${worldY}`);
+    console.log(`Movement target set: ${worldPos.x}, ${worldPos.y}`);
   },
 
   // Update input state

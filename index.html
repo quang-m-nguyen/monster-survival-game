@@ -3,34 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monster Survival Game</title>
+  <title>Micro Defender: Immune Response</title>
   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+      color: #0af;
+      font-family: 'Arial', sans-serif;
+    }
+    #gameCanvas {
+      display: block;
+      margin: 0 auto;
+      background-color: #000;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0af;
+      text-shadow: 0 0 10px #0af;
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    ul {
+      margin-bottom: 20px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    .glow {
+      text-shadow: 0 0 5px #0af;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Monster Survival Game</h1>
-    <p>Survive against monsters coming from all directions!</p>
+    <h1>Micro Defender: Immune Response</h1>
+    <p>Control a powerful white blood cell as it navigates through the body's fluid environment, battling harmful pathogens while producing antibodies to neutralize the infection.</p>
     <div class="button-container">
       <a href="game.html" class="play-button">Play Game</a>
     </div>
     <div class="instructions">
       <h2>How to Play</h2>
       <ul>
-        <li><strong>Movement (Desktop):</strong> Use arrow keys or WASD to move</li>
+        <li><strong>Movement (Desktop):</strong> Use arrow keys or WASD to move your white blood cell</li>
         <li><strong>Movement (Mobile):</strong> Tap anywhere on the screen to move in that direction</li>
-        <li><strong>Shooting:</strong> Automatic! Your character shoots in the direction you're facing</li>
-        <li><strong>Toggle Auto-fire:</strong> Press F to toggle automatic shooting on/off</li>
-        <li><strong>Game Speed:</strong> Press G to toggle between normal speed and 50% speed (50% slower)</li>
-        <li><strong>Manual Shooting:</strong> Press spacebar to shoot manually (even with auto-fire on)</li>
-        <li><strong>Goal:</strong> Survive as long as possible and level up</li>
-        <li><strong>Leveling:</strong> Kill monsters to level up and choose weapon upgrades</li>
-        <li><strong>Growth:</strong> Your character and bullets grow larger as you level up!</li>
-        <li><strong>Upgrades:</strong> When available, press 1-4 or click/tap upgrade icons to apply upgrades</li>
-        <li><strong>Multi-Shot:</strong> Upgrade to fire bullets in multiple directions at once!</li>
+        <li><strong>Antibody Production:</strong> Automatic! Your white blood cell produces antibodies in the direction you're facing</li>
+        <li><strong>Toggle Auto-production:</strong> Press F to toggle automatic antibody production on/off</li>
+        <li><strong>Cellular Response Speed:</strong> Press G to toggle between normal speed and 50% speed (50% slower)</li>
+        <li><strong>Manual Antibody Release:</strong> Press spacebar to release antibodies manually (even with auto-production on)</li>
+        <li><strong>Goal:</strong> Survive as long as possible and strengthen your immune response</li>
+        <li><strong>Immune Adaptation:</strong> Neutralize pathogens to level up and choose immune system upgrades</li>
+        <li><strong>Cell Growth:</strong> Your white blood cell and antibodies become more effective as you level up!</li>
+        <li><strong>Immune Upgrades:</strong> When available, press 1-4 or click/tap upgrade icons to apply upgrades</li>
+        <li><strong>Multi-directional Response:</strong> Upgrade to release antibodies in multiple directions at once!</li>
         <li><strong>Mobile Controls:</strong> The game automatically detects mobile devices and enables touch controls</li>
         <li><strong>Restart (Mobile):</strong> Tap the screen when game over to restart</li>
       </ul>
     </div>
+    <div class="loading"></div>
+    <canvas id="gameCanvas"></canvas>
   </div>
+  
+  <script>
+    // Add loading animation
+    window.addEventListener('load', function() {
+      const loading = document.querySelector('.loading');
+      if (loading) {
+        loading.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html> 

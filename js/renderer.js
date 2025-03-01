@@ -1,5 +1,5 @@
 /**
- * Renderer module for the Monster Survival Game
+ * Renderer module for the Micro Defender Game
  * Handles all drawing operations for the game
  */
 const Renderer = {
@@ -9,6 +9,8 @@ const Renderer = {
   cameraOffsetY: 0,
   worldSize: { width: 0, height: 0 },
   zoomFactor: 1, // Default zoom factor (1 = no zoom)
+  cellTextureCache: null,
+  microorganismsCache: null,
 
   /**
    * Initialize the renderer
@@ -100,26 +102,97 @@ const Renderer = {
    * Draw the game ground and grid
    */
   drawGround: function () {
-    // Draw ground/background
-    this.ctx.fillStyle = "#3c3";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // Create a biology-themed background
+    const ctx = this.ctx;
 
-    // Draw grid for visual reference
-    this.ctx.strokeStyle = "#555";
-    this.ctx.lineWidth = 1;
+    // Fill with cell fluid background
+    const fluidGradient = ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+    fluidGradient.addColorStop(0, "#e0f7fa"); // Light cyan
+    fluidGradient.addColorStop(0.5, "#b2ebf2"); // Cyan
+    fluidGradient.addColorStop(1, "#80deea"); // Light blue
+    ctx.fillStyle = fluidGradient;
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw cell texture effect (only if not already cached)
+    if (!this.cellTextureCache) {
+      this.createCellTextureEffect();
+    }
+
+    // Draw the cell texture with parallax effect
+    const parallaxOffset = {
+      x: (this.cameraOffsetX * 0.3) / this.zoomFactor,
+      y: (this.cameraOffsetY * 0.3) / this.zoomFactor,
+    };
+
+    // Tile the cell texture for large worlds
+    const textureSize = 800;
+    const tilesX = Math.ceil(this.canvas.width / textureSize) + 1;
+    const tilesY = Math.ceil(this.canvas.height / textureSize) + 1;
+
+    const offsetX = (parallaxOffset.x % textureSize) - textureSize;
+    const offsetY = (parallaxOffset.y % textureSize) - textureSize;
+
+    for (let x = 0; x < tilesX; x++) {
+      for (let y = 0; y < tilesY; y++) {
+        ctx.globalAlpha = 0.4;
+        ctx.drawImage(
+          this.cellTextureCache,
+          offsetX + x * textureSize,
+          offsetY + y * textureSize,
+          textureSize,
+          textureSize
+        );
+      }
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Draw floating microorganisms with parallax effect
+    if (!this.microorganismsCache) {
+      this.createMicroorganismsEffect();
+    }
+
+    // Draw the microorganisms with a different parallax effect
+    const microParallax = {
+      x: (this.cameraOffsetX * 0.1) / this.zoomFactor,
+      y: (this.cameraOffsetY * 0.1) / this.zoomFactor,
+    };
+
+    const microSize = 600;
+    const microTilesX = Math.ceil(this.canvas.width / microSize) + 1;
+    const microTilesY = Math.ceil(this.canvas.height / microSize) + 1;
+
+    const microOffsetX = (microParallax.x % microSize) - microSize;
+    const microOffsetY = (microParallax.y % microSize) - microSize;
+
+    for (let x = 0; x < microTilesX; x++) {
+      for (let y = 0; y < microTilesY; y++) {
+        ctx.globalAlpha = 0.7;
+        ctx.drawImage(
+          this.microorganismsCache,
+          microOffsetX + x * microSize,
+          microOffsetY + y * microSize,
+          microSize,
+          microSize
+        );
+      }
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Draw grid for visual reference (cell membrane structures)
+    ctx.strokeStyle = "rgba(0, 150, 136, 0.2)";
+    ctx.lineWidth = 1;
 
     // Calculate grid spacing based on zoom factor
-    const gridSpacing = 100;
-    const zoomedGridSpacing = gridSpacing / this.zoomFactor;
+    const gridSpacing = 200;
 
     // Vertical grid lines
     for (let x = 0; x < this.worldSize.width; x += gridSpacing) {
       const screenX = this.worldToScreen(x, 0).x;
       if (screenX >= 0 && screenX <= this.canvas.width) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(screenX, 0);
-        this.ctx.lineTo(screenX, this.canvas.height);
-        this.ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(screenX, 0);
+        ctx.lineTo(screenX, this.canvas.height);
+        ctx.stroke();
       }
     }
 
@@ -127,22 +200,192 @@ const Renderer = {
     for (let y = 0; y < this.worldSize.height; y += gridSpacing) {
       const screenY = this.worldToScreen(0, y).y;
       if (screenY >= 0 && screenY <= this.canvas.height) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, screenY);
-        this.ctx.lineTo(this.canvas.width, screenY);
-        this.ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, screenY);
+        ctx.lineTo(this.canvas.width, screenY);
+        ctx.stroke();
       }
     }
 
-    // Draw world boundaries
-    this.ctx.strokeStyle = "#fff";
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeRect(
+    // Draw world boundaries (cell membrane)
+    ctx.strokeStyle = "rgba(0, 121, 107, 0.6)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(
       -this.cameraOffsetX / this.zoomFactor,
       -this.cameraOffsetY / this.zoomFactor,
       this.worldSize.width / this.zoomFactor,
       this.worldSize.height / this.zoomFactor
     );
+  },
+
+  /**
+   * Create cell texture effect for the background
+   */
+  createCellTextureEffect: function () {
+    // Create an off-screen canvas for the cell texture
+    const textureCanvas = document.createElement("canvas");
+    const textureSize = 800;
+    textureCanvas.width = textureSize;
+    textureCanvas.height = textureSize;
+    const textureCtx = textureCanvas.getContext("2d");
+
+    // Fill with transparent background
+    textureCtx.fillStyle = "rgba(0,0,0,0)";
+    textureCtx.fillRect(0, 0, textureSize, textureSize);
+
+    // Create cell membrane structures
+    const numStructures = 15;
+    const colors = [
+      "rgba(178, 223, 219, 0.4)", // Pale teal
+      "rgba(128, 203, 196, 0.4)", // Light teal
+      "rgba(77, 182, 172, 0.4)", // Teal
+      "rgba(38, 166, 154, 0.4)", // Medium teal
+      "rgba(0, 150, 136, 0.4)", // Dark teal
+    ];
+
+    // Draw larger cell structures
+    for (let i = 0; i < numStructures; i++) {
+      const x = Math.random() * textureSize;
+      const y = Math.random() * textureSize;
+      const radius = 50 + Math.random() * 150;
+
+      const gradient = textureCtx.createRadialGradient(x, y, 0, x, y, radius);
+      gradient.addColorStop(0, colors[i % colors.length]);
+      gradient.addColorStop(0.7, colors[(i + 2) % colors.length]);
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+      textureCtx.fillStyle = gradient;
+      textureCtx.beginPath();
+      textureCtx.arc(x, y, radius, 0, Math.PI * 2);
+      textureCtx.fill();
+
+      // Add some organelle-like details inside
+      const numOrganelles = 2 + Math.floor(Math.random() * 3);
+      for (let j = 0; j < numOrganelles; j++) {
+        const orgX = x + (Math.random() * 2 - 1) * radius * 0.5;
+        const orgY = y + (Math.random() * 2 - 1) * radius * 0.5;
+        const orgRadius = radius * (0.1 + Math.random() * 0.2);
+
+        textureCtx.fillStyle = "rgba(0, 137, 123, 0.5)";
+        textureCtx.beginPath();
+        textureCtx.arc(orgX, orgY, orgRadius, 0, Math.PI * 2);
+        textureCtx.fill();
+      }
+    }
+
+    // Store the texture canvas for reuse
+    this.cellTextureCache = textureCanvas;
+  },
+
+  /**
+   * Create microorganisms effect for the background
+   */
+  createMicroorganismsEffect: function () {
+    // Create an off-screen canvas for the microorganisms
+    const microCanvas = document.createElement("canvas");
+    const microSize = 600;
+    microCanvas.width = microSize;
+    microCanvas.height = microSize;
+    const microCtx = microCanvas.getContext("2d");
+
+    // Fill with transparent background
+    microCtx.fillStyle = "rgba(0,0,0,0)";
+    microCtx.fillRect(0, 0, microSize, microSize);
+
+    // Draw various microorganisms
+    const numMicrobes = 40;
+
+    for (let i = 0; i < numMicrobes; i++) {
+      const x = Math.random() * microSize;
+      const y = Math.random() * microSize;
+      const size = Math.random() * 8 + 2;
+      const type = Math.floor(Math.random() * 4); // 0-3 different types
+
+      switch (type) {
+        case 0: // Round bacteria
+          microCtx.fillStyle = "rgba(0, 150, 136, 0.4)"; // Teal
+          microCtx.beginPath();
+          microCtx.arc(x, y, size, 0, Math.PI * 2);
+          microCtx.fill();
+          break;
+
+        case 1: // Rod-shaped bacteria
+          microCtx.fillStyle = "rgba(0, 188, 212, 0.4)"; // Cyan
+          microCtx.beginPath();
+          microCtx.ellipse(
+            x,
+            y,
+            size * 2,
+            size,
+            Math.random() * Math.PI,
+            0,
+            Math.PI * 2
+          );
+          microCtx.fill();
+          break;
+
+        case 2: // Spiral bacteria
+          microCtx.strokeStyle = "rgba(3, 169, 244, 0.5)"; // Light blue
+          microCtx.lineWidth = size / 2;
+          microCtx.beginPath();
+
+          // Draw a spiral
+          const spiralRadius = size * 3;
+          const spiralTurns = 2 + Math.random();
+          const spiralPoints = 20;
+
+          for (let j = 0; j <= spiralPoints; j++) {
+            const angle = (j / spiralPoints) * Math.PI * 2 * spiralTurns;
+            const radius = (j / spiralPoints) * spiralRadius;
+            const spiralX = x + Math.cos(angle) * radius;
+            const spiralY = y + Math.sin(angle) * radius;
+
+            if (j === 0) {
+              microCtx.moveTo(spiralX, spiralY);
+            } else {
+              microCtx.lineTo(spiralX, spiralY);
+            }
+          }
+
+          microCtx.stroke();
+          break;
+
+        case 3: // Amoeba-like
+          microCtx.fillStyle = "rgba(0, 121, 107, 0.3)"; // Dark teal
+          microCtx.beginPath();
+
+          // Create a blob shape with random bumps
+          const blobRadius = size * 2;
+          const blobPoints = 8;
+
+          for (let j = 0; j <= blobPoints; j++) {
+            const angle = (j / blobPoints) * Math.PI * 2;
+            const radius = blobRadius * (0.7 + Math.random() * 0.6);
+            const blobX = x + Math.cos(angle) * radius;
+            const blobY = y + Math.sin(angle) * radius;
+
+            if (j === 0) {
+              microCtx.moveTo(blobX, blobY);
+            } else {
+              microCtx.bezierCurveTo(
+                x + Math.cos(angle - Math.PI / blobPoints) * radius * 1.2,
+                y + Math.sin(angle - Math.PI / blobPoints) * radius * 1.2,
+                x + Math.cos(angle) * radius * 1.2,
+                y + Math.sin(angle) * radius * 1.2,
+                blobX,
+                blobY
+              );
+            }
+          }
+
+          microCtx.closePath();
+          microCtx.fill();
+          break;
+      }
+    }
+
+    // Store the microorganisms canvas for reuse
+    this.microorganismsCache = microCanvas;
   },
 
   /**
@@ -154,9 +397,9 @@ const Renderer = {
   drawHUD: function (player, score, gameOver) {
     // Draw player health bar
     const healthPercent = player.health / player.maxHealth;
-    this.ctx.fillStyle = "#900";
+    this.ctx.fillStyle = "#d32f2f"; // Red
     this.ctx.fillRect(20, this.canvas.height - 30, 200, 20);
-    this.ctx.fillStyle = "#090";
+    this.ctx.fillStyle = "#4caf50"; // Green
     this.ctx.fillRect(20, this.canvas.height - 30, 200 * healthPercent, 20);
     this.ctx.strokeStyle = "#fff";
     this.ctx.strokeRect(20, this.canvas.height - 30, 200, 20);
@@ -194,7 +437,7 @@ const Renderer = {
    * @param {number} level - The final level
    */
   drawGameOver: function (score, level) {
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    this.ctx.fillStyle = "rgba(0, 77, 64, 0.7)"; // Dark teal with opacity
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.fillStyle = "white";
@@ -234,6 +477,19 @@ const Renderer = {
     return {
       x: (x - this.cameraOffsetX) / this.zoomFactor,
       y: (y - this.cameraOffsetY) / this.zoomFactor,
+    };
+  },
+
+  /**
+   * Convert screen coordinates to world coordinates
+   * @param {number} x - Screen x coordinate
+   * @param {number} y - Screen y coordinate
+   * @returns {Object} World coordinates {x, y}
+   */
+  screenToWorld: function (x, y) {
+    return {
+      x: x * this.zoomFactor + this.cameraOffsetX,
+      y: y * this.zoomFactor + this.cameraOffsetY,
     };
   },
 };
