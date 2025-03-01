@@ -1,84 +1,91 @@
-# Cosmic Defender: Space Survival
+# Micro Defender: Immune Response
 
-A fast-paced space survival game where you pilot an advanced spacecraft through the cosmic void, battling alien creatures while collecting upgrades to enhance your combat capabilities.
+A browser-based game where you control a white blood cell defending the body against pathogens.
 
-## Game Features
+## Game Overview
 
-- **Immersive Sci-Fi Visuals**: Space-themed background with stars and nebula effects, futuristic spacecraft with shield and thruster animations, energy projectiles with glowing trails, and animated alien creatures.
-- **Responsive Controls**: Smooth keyboard controls for desktop and intuitive touch controls for mobile devices.
-- **Progressive Difficulty**: Aliens become stronger and more numerous as you survive longer.
-- **Weapon Upgrade System**: Collect upgrades to enhance your spacecraft's firepower, speed, and defenses.
-- **Score Tracking**: Keep track of your high score and try to beat it.
-- **Mobile Optimization**: Automatically detects mobile devices and enables touch controls.
-- **Adjustable game speed**: Toggle between normal and 50% slower speed.
+Control a powerful white blood cell as it navigates through the body's fluid environment, battling harmful pathogens while producing antibodies to neutralize the infection.
 
-## Controls
+### How to Play
 
-- **Movement (Desktop)**: Arrow keys or WASD to move the spacecraft
-- **Shooting (Desktop)**: Automatically shoots in the direction of movement
-- **Restart (Desktop)**: Press R to restart when game over
-- **Game Speed (Desktop)**: Press G to toggle game speed between normal and 50% (50% slower)
+- **Movement (Desktop):** Use arrow keys or WASD to move your white blood cell
+- **Movement (Mobile):** Tap anywhere on the screen to move in that direction
+- **Antibody Production:** Automatic! Your white blood cell produces antibodies in the direction you're facing
+- **Toggle Auto-production:** Press F to toggle automatic antibody production on/off
+- **Cellular Response Speed:** Press G to toggle between normal speed and 50% speed (50% slower)
+- **Manual Antibody Release:** Press spacebar to release antibodies manually (even with auto-production on)
+- **Goal:** Survive as long as possible and strengthen your immune response
+- **Immune Adaptation:** Neutralize pathogens to level up and choose immune system upgrades
+- **Cell Growth:** Your white blood cell and antibodies become more effective as you level up!
+- **Immune Upgrades:** When available, press 1-4 or click/tap upgrade icons to apply upgrades
+- **Multi-directional Response:** Upgrade to release antibodies in multiple directions at once!
+- **Mobile Controls:** The game automatically detects mobile devices and enables touch controls
+- **Restart (Mobile):** Tap the screen when game over to restart
 
-## Mobile Controls
+## Deployment
 
-- **Tap and Hold**: Tap anywhere on the screen to move the player toward that location
-- **Auto-fire**: Automatically shoots in the direction of movement
-- **Tap Upgrade Icons**: Tap on upgrade icons to apply upgrades
-- **Tap Screen**: Tap the screen when game over to restart
+This game can be easily deployed to Vercel. Follow these steps:
 
-## Mobile Optimization
+### Prerequisites
 
-The game automatically detects mobile devices and enables:
-- Touch controls for intuitive gameplay
-- Zoomed-out camera view for better visibility
-- Properly scaled UI elements
-- Visual target indicator showing where you're moving
-- Responsive upgrade panel
+1. [Node.js](https://nodejs.org/) (v14 or later)
+2. [Vercel CLI](https://vercel.com/cli) (optional for local development)
+3. A [Vercel account](https://vercel.com/signup)
 
-## Level Progression
+### Deploying to Vercel
 
-As you survive longer:
-1. Aliens spawn more frequently
-2. Aliens become faster and more resilient
-3. Special larger aliens appear with more health
-4. Score multiplier increases
+#### Option 1: Deploy with Vercel CLI
 
-## Weapon Upgrade System
+1. Install Vercel CLI:
+   ```
+   npm install -g vercel
+   ```
 
-Collect upgrades that appear randomly to enhance your spacecraft:
-- **Damage**: Increases the damage of your energy projectiles
-- **Fire Rate**: Increases how quickly you can fire
-- **Speed**: Increases your movement speed
-- **Health**: Restores and increases your maximum health
-- **Life Steal**: Gain health when defeating aliens
+2. Login to Vercel:
+   ```
+   vercel login
+   ```
 
-## Project Structure
+3. Deploy the project:
+   ```
+   vercel
+   ```
 
-- **index.html**: Main entry point with game description and instructions
-- **game.html**: The game canvas and loading of game scripts
-- **styles.css**: Basic styling for the HTML pages
-- **js/game.js**: Main game loop and initialization
-- **js/player.js**: Player spacecraft logic and rendering
-- **js/bullets.js**: Projectile management and collision detection
-- **js/monsters.js**: Alien creature spawning and behavior
-- **js/upgrades.js**: Upgrade system implementation
-- **js/input.js**: Processes keyboard and touch input for game controls
-- **js/renderer.js**: Handles drawing operations and camera management
-- **js/ui.js**: User interface elements like health bar and score display
+4. Follow the prompts to complete the deployment.
 
-## Development
+#### Option 2: Deploy via GitHub Integration
+
+1. Push your code to a GitHub repository.
+2. Go to [Vercel Dashboard](https://vercel.com/dashboard).
+3. Click "New Project".
+4. Import your GitHub repository.
+5. Configure your project settings (the defaults should work fine).
+6. Click "Deploy".
+
+#### Option 3: Deploy via Vercel Dashboard
+
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard).
+2. Click "New Project".
+3. Choose "Upload" from the options.
+4. Zip your project files and upload them.
+5. Configure your project settings.
+6. Click "Deploy".
+
+## Local Development
 
 To run the game locally:
-1. Clone this repository
-2. Open index.html in a web browser
-3. Click "Play Game" to start
 
-No build process or dependencies required - pure JavaScript, HTML and CSS.
+1. Clone this repository.
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Start the development server:
+   ```
+   npm run dev
+   ```
+4. Open your browser and navigate to `http://localhost:3000`.
 
-## Future Enhancements
+## License
 
-- Additional spacecraft types with unique abilities
-- More alien varieties with different attack patterns
-- Power-up system with temporary special abilities
-- Boss battles at milestone scores
-- Local multiplayer support 
+MIT 

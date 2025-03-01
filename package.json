@@ -1,0 +1,21 @@
+{
+  "name": "micro-defender",
+  "version": "1.0.0",
+  "description": "Micro Defender: Immune Response - A browser-based game about fighting pathogens",
+  "main": "index.html",
+  "scripts": {
+    "dev": "serve",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "game",
+    "javascript",
+    "html5",
+    "canvas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+} 
