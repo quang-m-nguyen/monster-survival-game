@@ -52,36 +52,43 @@ const Player = {
       Bullets.create();
     }
 
-    // Update player position based on key presses
-    let playerMoved = false;
+    // Only process keyboard movement if not using touch controls
+    // (Input.isMobile && Input.isTouching is handled in Input.update)
+    if (!(Input.isMobile && Input.isTouching)) {
+      // Update player position based on key presses
+      let playerMoved = false;
 
-    if (Input.keys["ArrowRight"] || Input.keys["d"]) {
-      this.x += this.speed;
-      this.direction = "right";
-      playerMoved = true;
+      if (Input.keys["ArrowRight"] || Input.keys["d"]) {
+        this.x += this.speed;
+        this.direction = "right";
+        playerMoved = true;
+      }
+
+      if (Input.keys["ArrowLeft"] || Input.keys["a"]) {
+        this.x -= this.speed;
+        this.direction = "left";
+        playerMoved = true;
+      }
+
+      if (Input.keys["ArrowUp"] || Input.keys["w"]) {
+        this.y -= this.speed;
+        this.direction = "up";
+        playerMoved = true;
+      }
+
+      if (Input.keys["ArrowDown"] || Input.keys["s"]) {
+        this.y += this.speed;
+        this.direction = "down";
+        playerMoved = true;
+      }
+
+      // Keep player within world bounds
+      this.x = Math.max(0, Math.min(Game.worldSize.width - this.width, this.x));
+      this.y = Math.max(
+        0,
+        Math.min(Game.worldSize.height - this.height, this.y)
+      );
     }
-
-    if (Input.keys["ArrowLeft"] || Input.keys["a"]) {
-      this.x -= this.speed;
-      this.direction = "left";
-      playerMoved = true;
-    }
-
-    if (Input.keys["ArrowUp"] || Input.keys["w"]) {
-      this.y -= this.speed;
-      this.direction = "up";
-      playerMoved = true;
-    }
-
-    if (Input.keys["ArrowDown"] || Input.keys["s"]) {
-      this.y += this.speed;
-      this.direction = "down";
-      playerMoved = true;
-    }
-
-    // Keep player within world bounds
-    this.x = Math.max(0, Math.min(Game.worldSize.width - this.width, this.x));
-    this.y = Math.max(0, Math.min(Game.worldSize.height - this.height, this.y));
   },
 
   // Toggle auto-fire

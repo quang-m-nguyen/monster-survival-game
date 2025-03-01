@@ -115,6 +115,11 @@ const Game = {
     // Draw player
     Player.draw(Renderer.ctx);
 
+    // Draw touch target indicator if using touch controls
+    if (Input.isMobile && Input.isTouching) {
+      this.drawTouchTarget();
+    }
+
     // Draw HUD
     Renderer.drawHUD(Player, this.score, this.gameOver);
 
@@ -149,6 +154,39 @@ const Game = {
         Renderer.canvas.height - 60
       );
     }
+  },
+
+  // Draw touch target indicator
+  drawTouchTarget: function () {
+    const targetPos = Renderer.worldToScreen(
+      Input.touchTargetX,
+      Input.touchTargetY
+    );
+
+    // Draw outer circle
+    Renderer.ctx.beginPath();
+    Renderer.ctx.arc(
+      targetPos.x,
+      targetPos.y,
+      20 / Renderer.zoomFactor,
+      0,
+      Math.PI * 2
+    );
+    Renderer.ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+    Renderer.ctx.lineWidth = 2 / Renderer.zoomFactor;
+    Renderer.ctx.stroke();
+
+    // Draw inner circle
+    Renderer.ctx.beginPath();
+    Renderer.ctx.arc(
+      targetPos.x,
+      targetPos.y,
+      5 / Renderer.zoomFactor,
+      0,
+      Math.PI * 2
+    );
+    Renderer.ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    Renderer.ctx.fill();
   },
 
   // Check for collision between two objects

@@ -10,8 +10,23 @@ const Input = {
   mouseX: 0,
   mouseY: 0,
 
+  // Touch controls
+  isTouching: false,
+  touchX: 0,
+  touchY: 0,
+  touchTargetX: 0, // World coordinates target position
+  touchTargetY: 0,
+  isMobile: false, // Flag to detect mobile devices
+
   // Initialize input handlers
   init: function () {
+    // Detect if device is mobile
+    this.isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+    console.log("Mobile device detected:", this.isMobile);
+
     // Event listeners for key presses
     window.addEventListener("keydown", (e) => {
       this.keys[e.key] = true;
@@ -62,13 +77,131 @@ const Input = {
       const clickX = e.clientX - rect.left;
       const clickY = e.clientY - rect.top;
 
-      // Handle upgrade panel clicks
-      LevelSystem.handleClick(clickX, clickY);
+      // Check if click is on upgrade panel first
+      if (LevelSystem.handleClick(clickX, clickY)) {
+        return; // Click was handled by upgrade panel
+      }
+
+      // If not on mobile, don't handle movement clicks
+      if (!this.isMobile) return;
+
+      // Convert screen coordinates to world coordinates for movement
+      this.handleMovementInput(clickX, clickY);
     });
+
+    // Set up touch event listeners for mobile
+    Renderer.canvas.addEventListener(
+      "touchstart",
+      (e) => {
+        e.preventDefault(); // Prevent scrolling
+
+        if (Game.gameOver) {
+          Game.restart();
+          return;
+        }
+
+        const rect = Renderer.canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        this.touchX = touch.clientX - rect.left;
+        this.touchY = touch.clientY - rect.top;
+        this.isTouching = true;
+
+        // Check if touch is on upgrade panel first
+        if (LevelSystem.handleClick(this.touchX, this.touchY)) {
+          return; // Touch was handled by upgrade panel
+        }
+
+        // Handle movement touch
+        this.handleMovementInput(this.touchX, this.touchY);
+      },
+      { passive: false }
+    );
+
+    Renderer.canvas.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault(); // Prevent scrolling
+
+        const rect = Renderer.canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        this.touchX = touch.clientX - rect.left;
+        this.touchY = touch.clientY - rect.top;
+
+        // Update movement target while dragging
+        this.handleMovementInput(this.touchX, this.touchY);
+      },
+      { passive: false }
+    );
+
+    Renderer.canvas.addEventListener(
+      "touchend",
+      (e) => {
+        e.preventDefault(); // Prevent scrolling
+        this.isTouching = false;
+      },
+      { passive: false }
+    );
+  },
+
+  // Handle movement input (touch or click)
+  handleMovementInput: function (screenX, screenY) {
+    // Convert screen coordinates to world coordinates
+    const worldX = screenX * Renderer.zoomFactor + Renderer.cameraOffsetX;
+    const worldY = screenY * Renderer.zoomFactor + Renderer.cameraOffsetY;
+
+    // Set target position
+    this.touchTargetX = worldX;
+    this.touchTargetY = worldY;
+
+    // Show a visual indicator at the target position (optional)
+    Game.showMessage("Moving to target", 30);
+
+    console.log(`Movement target set: ${worldX}, ${worldY}`);
   },
 
   // Update input state
   update: function () {
-    // Any continuous input processing can go here
+    // Handle touch-based movement on mobile
+    if (
+      this.isMobile &&
+      this.isTouching &&
+      !Game.gamePaused &&
+      !Game.gameOver
+    ) {
+      // Calculate direction to target
+      const dx = this.touchTargetX - (Player.x + Player.width / 2);
+      const dy = this.touchTargetY - (Player.y + Player.height / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Only move if we're not very close to the target
+      if (distance > Player.speed * 2) {
+        // Normalize direction and apply player speed
+        const moveX = (dx / distance) * Player.speed;
+        const moveY = (dy / distance) * Player.speed;
+
+        // Update player position
+        Player.x += moveX;
+        Player.y += moveY;
+
+        // Update player direction based on movement
+        if (Math.abs(moveX) > Math.abs(moveY)) {
+          // Moving more horizontally than vertically
+          Player.direction = moveX > 0 ? "right" : "left";
+        } else {
+          // Moving more vertically than horizontally
+          Player.direction = moveY > 0 ? "down" : "up";
+        }
+
+        // Keep player within world bounds
+        Player.x = Math.max(
+          0,
+          Math.min(Game.worldSize.width - Player.width, Player.x)
+        );
+        Player.y = Math.max(
+          0,
+          Math.min(Game.worldSize.height - Player.height, Player.y)
+        );
+      }
+    }
   },
 };

@@ -13,9 +13,12 @@ A top-down survival game where you fight off endless waves of monsters while lev
 - Health system with life steal ability
 - Score tracking
 - Game over and restart functionality
+- Responsive design with mobile touch controls
+- Dynamic camera scaling for different screen sizes
 
 ## Controls
 
+### Desktop Controls
 - **WASD or Arrow Keys**: Move the player
 - **Auto-fire**: Automatically shoots in the current direction
 - **F**: Toggle auto-fire on/off
@@ -23,6 +26,21 @@ A top-down survival game where you fight off endless waves of monsters while lev
 - **1, 2, 3, 4**: Select upgrade option when available
 - **Mouse**: Click on upgrade icons to apply upgrades
 - **R**: Restart the game when game over
+
+### Mobile Controls
+- **Tap and Hold**: Tap anywhere on the screen to move the player toward that location
+- **Auto-fire**: Automatically shoots in the direction of movement
+- **Tap Upgrade Icons**: Tap on upgrade icons to apply upgrades
+- **Tap Screen**: Tap the screen when game over to restart
+
+## Mobile Optimization
+
+The game automatically detects mobile devices and enables:
+- Touch controls for intuitive movement
+- Zoomed-out camera view to see more of the game world
+- Properly scaled UI elements for different screen sizes
+- Visual target indicator showing where the player is moving to
+- Responsive upgrade panel that adapts to screen size
 
 ## Level Progression
 
@@ -50,7 +68,7 @@ This creates a challenging but fair experience that remains playable even at hig
 
 ## Weapon Upgrade System
 
-When you level up, upgrade options appear in the bottom-left corner of the screen. You can continue playing and apply upgrades whenever you want by pressing the corresponding number key or clicking on the icon. Upgrades will stack if not used immediately.
+When you level up, upgrade options appear in the bottom-left corner of the screen. You can continue playing and apply upgrades whenever you want by pressing the corresponding number key or clicking/tapping on the icon. Upgrades will stack if not used immediately.
 
 Available upgrades:
 
@@ -69,7 +87,7 @@ The game is built with a modular JavaScript architecture:
 - **bullets.js**: Handles bullet creation, movement, and collision detection
 - **monsters.js**: Controls monster spawning, movement, and behavior
 - **levelSystem.js**: Manages player progression, level-ups, and weapon upgrades
-- **input.js**: Processes keyboard input for game controls
+- **input.js**: Processes keyboard and touch input for game controls
 
 ## Development
 
@@ -86,5 +104,5 @@ To run the game locally:
 - Additional weapon types
 - More monster varieties
 - Power-ups and special abilities
-- Mobile touch controls
-- Local high score storage 
+- Local high score storage
+- Customizable controls 
