@@ -6,6 +6,10 @@
 const Input = {
   keys: {},
 
+  // Mouse position
+  mouseX: 0,
+  mouseY: 0,
+
   // Initialize input handlers
   init: function () {
     // Event listeners for key presses
@@ -45,5 +49,26 @@ const Input = {
     window.addEventListener("keyup", (e) => {
       this.keys[e.key] = false;
     });
+
+    // Set up mouse event listeners
+    Renderer.canvas.addEventListener("mousemove", (e) => {
+      const rect = Renderer.canvas.getBoundingClientRect();
+      this.mouseX = e.clientX - rect.left;
+      this.mouseY = e.clientY - rect.top;
+    });
+
+    Renderer.canvas.addEventListener("click", (e) => {
+      const rect = Renderer.canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      // Handle upgrade panel clicks
+      LevelSystem.handleClick(clickX, clickY);
+    });
+  },
+
+  // Update input state
+  update: function () {
+    // Any continuous input processing can go here
   },
 };

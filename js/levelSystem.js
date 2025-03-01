@@ -11,12 +11,13 @@ const LevelSystem = {
   levelUpMessageDuration: 120, // 2 seconds at 60 FPS
 
   // Upgrade system
-  showingUpgradeChoices: false,
+  availableUpgrades: 0, // Number of upgrade points available
   upgradeChoices: [
     {
       name: "Attack Speed",
       description: "Decrease bullet cooldown by 15%",
       icon: "⚡",
+      hotkey: "1",
       apply: function () {
         // Reduce cooldown (faster firing)
         Bullets.settings.cooldown = Math.max(
@@ -30,6 +31,7 @@ const LevelSystem = {
       name: "Attack Damage",
       description: "Increase bullet damage by 30%",
       icon: "💥",
+      hotkey: "2",
       apply: function () {
         // Increase damage
         Bullets.settings.damage = Math.floor(Bullets.settings.damage * 1.3);
@@ -40,6 +42,7 @@ const LevelSystem = {
       name: "Life Steal",
       description: "Gain health for each monster killed",
       icon: "❤️",
+      hotkey: "3",
       apply: function () {
         // Increase life steal amount
         Player.lifeStealAmount += 2;
@@ -50,6 +53,7 @@ const LevelSystem = {
       name: "Multi-Shot",
       description: "Add an additional bullet stream",
       icon: "🔫",
+      hotkey: "4",
       apply: function () {
         // Increase number of bullet streams
         Bullets.settings.streams++;
@@ -57,10 +61,10 @@ const LevelSystem = {
       },
     },
   ],
-  selectedUpgrade: -1,
   upgradeResult: "",
   upgradeResultTimer: 0,
   upgradeResultDuration: 180, // 3 seconds at 60 FPS
+  upgradeIconPulse: 0, // For pulsing animation of upgrade icons
 
   // Initialize the level system
   init: function () {
@@ -69,10 +73,10 @@ const LevelSystem = {
     this.monstersToNextLevel = this.calculateMonstersForNextLevel();
     this.levelUpMessage = "";
     this.levelUpMessageTimer = 0;
-    this.showingUpgradeChoices = false;
-    this.selectedUpgrade = -1;
+    this.availableUpgrades = 0;
     this.upgradeResult = "";
     this.upgradeResultTimer = 0;
+    this.upgradeIconPulse = 0;
   },
 
   // Calculate monsters needed for next level (balanced progression)
@@ -123,9 +127,8 @@ const LevelSystem = {
       this.levelUpMessage = "LEVEL UP! Level " + this.currentLevel;
       this.levelUpMessageTimer = this.levelUpMessageDuration;
 
-      // Show upgrade choices
-      this.showingUpgradeChoices = true;
-      Game.gamePaused = true;
+      // Increment available upgrades
+      this.availableUpgrades++;
 
       // Basic level up benefits (regardless of choice)
       Player.maxHealth += 10;
@@ -140,6 +143,12 @@ const LevelSystem = {
 
       // Increase monster difficulty with diminishing returns
       this.increaseMonsterDifficulty();
+
+      // Show message about available upgrades
+      Game.showMessage(
+        "Upgrade available! Press 1-4 to select or click the icons",
+        180
+      );
 
       return true;
     }
@@ -230,24 +239,58 @@ const LevelSystem = {
 
   // Handle upgrade selection
   selectUpgrade: function (index) {
-    if (index >= 0 && index < this.upgradeChoices.length) {
-      this.selectedUpgrade = index;
+    if (
+      this.availableUpgrades > 0 &&
+      index >= 0 &&
+      index < this.upgradeChoices.length
+    ) {
+      this.availableUpgrades--;
       this.upgradeResult = this.upgradeChoices[index].apply();
       this.upgradeResultTimer = this.upgradeResultDuration;
-      this.showingUpgradeChoices = false;
-      Game.gamePaused = false;
+
+      // Show message about the upgrade
+      Game.showMessage(this.upgradeResult, 120);
+
+      return true;
     }
+    return false;
   },
 
   // Handle keyboard input for upgrade selection
   handleInput: function (key) {
-    if (!this.showingUpgradeChoices) return false;
+    if (this.availableUpgrades <= 0) return false;
 
     if (key === "1" || key === "2" || key === "3" || key === "4") {
       const index = parseInt(key) - 1;
       if (index < this.upgradeChoices.length) {
-        this.selectUpgrade(index);
-        return true;
+        return this.selectUpgrade(index);
+      }
+    }
+
+    return false;
+  },
+
+  // Handle mouse click for upgrade selection
+  handleClick: function (x, y) {
+    if (this.availableUpgrades <= 0) return false;
+
+    // Check if click is within the upgrade panel area
+    const panelX = 20;
+    const panelY = Renderer.canvas.height - 100;
+    const iconSize = 50;
+    const iconGap = 10;
+
+    for (let i = 0; i < this.upgradeChoices.length; i++) {
+      const iconX = panelX + i * (iconSize + iconGap);
+      const iconY = panelY;
+
+      if (
+        x >= iconX &&
+        x <= iconX + iconSize &&
+        y >= iconY &&
+        y <= iconY + iconSize
+      ) {
+        return this.selectUpgrade(i);
       }
     }
 
@@ -265,6 +308,9 @@ const LevelSystem = {
     if (this.upgradeResultTimer > 0) {
       this.upgradeResultTimer--;
     }
+
+    // Update icon pulse animation
+    this.upgradeIconPulse = (this.upgradeIconPulse + 1) % 60; // 1 second cycle
   },
 
   // Draw level information
@@ -326,67 +372,68 @@ const LevelSystem = {
       );
     }
 
-    // Draw upgrade choices if showing
-    if (this.showingUpgradeChoices) {
-      // Draw semi-transparent background
-      ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-      ctx.fillRect(0, 0, Renderer.canvas.width, Renderer.canvas.height);
-
-      // Draw title
-      ctx.fillStyle = "white";
-      ctx.font = "36px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("Choose an Upgrade", Renderer.canvas.width / 2, 100);
-
-      // Draw instructions
-      ctx.font = "18px Arial";
-      ctx.fillText(
-        "Press 1, 2, 3, or 4 to select",
-        Renderer.canvas.width / 2,
-        140
-      );
-
-      // Draw choices
-      const choiceWidth = 200;
-      const choiceHeight = 220;
-      const choiceGap = 30;
-      const totalWidth =
-        choiceWidth * this.upgradeChoices.length +
-        choiceGap * (this.upgradeChoices.length - 1);
-      const startX = (Renderer.canvas.width - totalWidth) / 2;
-      const startY = 180;
-
-      for (let i = 0; i < this.upgradeChoices.length; i++) {
-        const choice = this.upgradeChoices[i];
-        const x = startX + i * (choiceWidth + choiceGap);
-        const y = startY;
-
-        // Draw choice background
-        ctx.fillStyle = "rgba(50, 50, 80, 0.9)";
-        ctx.fillRect(x, y, choiceWidth, choiceHeight);
-        ctx.strokeStyle = "#aaa";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, choiceWidth, choiceHeight);
-
-        // Draw choice number
-        ctx.fillStyle = "white";
-        ctx.font = "24px Arial";
-        ctx.textAlign = "left";
-        ctx.fillText(`${i + 1}.`, x + 10, y + 30);
-
-        // Draw choice icon
-        ctx.font = "48px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(choice.icon, x + choiceWidth / 2, y + 80);
-
-        // Draw choice name
-        ctx.font = "24px Arial";
-        ctx.fillText(choice.name, x + choiceWidth / 2, y + 130);
-
-        // Draw choice description
-        ctx.font = "16px Arial";
-        ctx.fillText(choice.description, x + choiceWidth / 2, y + 170);
-      }
+    // Draw available upgrades if any
+    if (this.availableUpgrades > 0) {
+      this.drawUpgradePanel(ctx);
     }
+  },
+
+  // Draw the upgrade panel in the corner
+  drawUpgradePanel: function (ctx) {
+    const panelX = 20;
+    const panelY = Renderer.canvas.height - 100;
+    const iconSize = 50;
+    const iconGap = 10;
+    const totalWidth = (iconSize + iconGap) * this.upgradeChoices.length;
+
+    // Draw panel background
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(panelX - 10, panelY - 10, totalWidth + 20, iconSize + 40);
+
+    // Draw available upgrades text
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(
+      `Available Upgrades: ${this.availableUpgrades}`,
+      panelX,
+      panelY - 15
+    );
+
+    // Calculate pulse effect (0 to 1 to 0)
+    const pulse = Math.sin((this.upgradeIconPulse / 60) * Math.PI) * 0.3 + 0.7;
+
+    // Draw upgrade icons
+    for (let i = 0; i < this.upgradeChoices.length; i++) {
+      const choice = this.upgradeChoices[i];
+      const iconX = panelX + i * (iconSize + iconGap);
+      const iconY = panelY;
+
+      // Draw icon background with pulse effect for visibility
+      ctx.fillStyle = `rgba(50, 50, 80, ${pulse})`;
+      ctx.fillRect(iconX, iconY, iconSize, iconSize);
+      ctx.strokeStyle = "#aaa";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(iconX, iconY, iconSize, iconSize);
+
+      // Draw icon
+      ctx.fillStyle = "white";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(choice.icon, iconX + iconSize / 2, iconY + iconSize / 2 + 8);
+
+      // Draw hotkey
+      ctx.font = "14px Arial";
+      ctx.fillText(choice.hotkey, iconX + iconSize / 2, iconY + iconSize - 5);
+    }
+
+    // Draw hint text
+    ctx.font = "14px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(
+      "Press key or click to upgrade",
+      panelX,
+      panelY + iconSize + 20
+    );
   },
 };

@@ -20,7 +20,8 @@ A top-down survival game where you fight off endless waves of monsters while lev
 - **Auto-fire**: Automatically shoots in the current direction
 - **F**: Toggle auto-fire on/off
 - **Space**: Shoot manually (even with auto-fire on)
-- **1, 2, 3, 4**: Select upgrade option when leveling up
+- **1, 2, 3, 4**: Select upgrade option when available
+- **Mouse**: Click on upgrade icons to apply upgrades
 - **R**: Restart the game when game over
 
 ## Level Progression
@@ -49,7 +50,9 @@ This creates a challenging but fair experience that remains playable even at hig
 
 ## Weapon Upgrade System
 
-When you level up, you can choose from the following upgrades:
+When you level up, upgrade options appear in the bottom-left corner of the screen. You can continue playing and apply upgrades whenever you want by pressing the corresponding number key or clicking on the icon. Upgrades will stack if not used immediately.
+
+Available upgrades:
 
 1. **Attack Speed**: Decreases the cooldown between shots
 2. **Attack Damage**: Increases the damage dealt by each bullet
