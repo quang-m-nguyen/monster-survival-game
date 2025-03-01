@@ -69,12 +69,8 @@ const Player = {
 
     // Auto-fire bullets when cooldown is ready
     if (this.autoFire && this.shootCooldown <= 0) {
-      // Use mouse-directed shooting if not on mobile
-      if (!Input.isMobile) {
-        Bullets.createTowardsMouse();
-      } else {
-        Bullets.create();
-      }
+      // Use mouse/touch-directed shooting for both desktop and mobile
+      Bullets.createTowardsMouse();
     }
 
     // Update nucleus animation
@@ -97,7 +93,7 @@ const Player = {
       }
     }
 
-    // Update player direction based on mouse position (for aiming)
+    // Update player direction based on mouse or touch position
     this.updateDirectionFromMouse();
 
     // Only process keyboard movement if not using touch controls
@@ -463,23 +459,36 @@ const Player = {
   },
 
   /**
-   * Update player direction based on mouse position
+   * Update player direction based on mouse or touch position
    */
   updateDirectionFromMouse: function () {
-    // Skip if on mobile with touch controls
-    if (Input.isMobile && Input.isTouching) return;
-
     // Get player center in screen coordinates
     const playerScreenPos = Renderer.worldToScreen(
       this.x + this.width / 2,
       this.y + this.height / 2
     );
 
-    // Calculate angle to mouse
-    const dx = Input.mouseX - playerScreenPos.x;
-    const dy = Input.mouseY - playerScreenPos.y;
+    // Determine target position based on input type
+    let targetX, targetY;
 
-    // Only update if mouse is far enough from player to determine direction
+    if (Input.isMobile && Input.isTouching) {
+      // Use touch position for mobile
+      targetX = Input.touchX;
+      targetY = Input.touchY;
+    } else if (!Input.isMobile) {
+      // Use mouse position for desktop
+      targetX = Input.mouseX;
+      targetY = Input.mouseY;
+    } else {
+      // No valid input to determine direction
+      return;
+    }
+
+    // Calculate angle to target
+    const dx = targetX - playerScreenPos.x;
+    const dy = targetY - playerScreenPos.y;
+
+    // Only update if target is far enough from player to determine direction
     if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
       // Determine direction based on angle
       if (Math.abs(dx) > Math.abs(dy)) {

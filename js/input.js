@@ -152,6 +152,11 @@ const Input = {
 
         // Update movement target while dragging
         this.handleMovementInput(this.touchX, this.touchY);
+
+        // Ensure continuous shooting while dragging if cooldown allows
+        if (Player.autoFire && Player.shootCooldown <= 0) {
+          Bullets.createTowardsMouse();
+        }
       },
       { passive: false }
     );

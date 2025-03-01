@@ -419,11 +419,6 @@ const Renderer = {
     this.ctx.font = "24px Arial";
     this.ctx.textAlign = "left";
     this.ctx.fillText("Score: " + score, 20, 30);
-    this.ctx.fillText(
-      "Position: " + Math.floor(player.x) + ", " + Math.floor(player.y),
-      20,
-      60
-    );
 
     // Draw game over message
     if (gameOver) {

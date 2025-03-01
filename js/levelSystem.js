@@ -276,11 +276,20 @@ const LevelSystem = {
 
     // Get panel dimensions based on screen size
     const panelDimensions = this.getUpgradePanelDimensions();
-    const { panelX, panelY, iconSize, iconGap } = panelDimensions;
+    const { panelX, panelY, iconSize, iconGap, isMobile } = panelDimensions;
 
     for (let i = 0; i < this.upgradeChoices.length; i++) {
-      const iconX = panelX + i * (iconSize + iconGap);
-      const iconY = panelY;
+      let iconX, iconY;
+
+      if (isMobile) {
+        // Vertical layout for mobile
+        iconX = panelX;
+        iconY = panelY + i * (iconSize + iconGap);
+      } else {
+        // Horizontal layout for desktop
+        iconX = panelX + i * (iconSize + iconGap);
+        iconY = panelY;
+      }
 
       if (
         x >= iconX &&
@@ -309,8 +318,17 @@ const LevelSystem = {
     const iconGap = isMobile ? 5 : 10;
 
     // Position panel based on screen size
-    const panelX = 20;
-    const panelY = canvasHeight - (isMobile ? 100 : 120);
+    let panelX, panelY;
+
+    if (isMobile) {
+      // For mobile: position on the right side of the screen
+      panelX = canvasWidth - iconSize - 20;
+      panelY = Math.max(150, canvasHeight * 0.25); // Start higher on the screen
+    } else {
+      // For desktop: position at the bottom left
+      panelX = 20;
+      panelY = canvasHeight - 120;
+    }
 
     return { panelX, panelY, iconSize, iconGap, isMobile };
   },
@@ -401,11 +419,23 @@ const LevelSystem = {
     // Get responsive dimensions
     const { panelX, panelY, iconSize, iconGap, isMobile } =
       this.getUpgradePanelDimensions();
-    const totalWidth = (iconSize + iconGap) * this.upgradeChoices.length;
+
+    // Calculate panel dimensions based on device type
+    let totalWidth, totalHeight;
+
+    if (isMobile) {
+      // Vertical layout for mobile
+      totalWidth = iconSize + 40;
+      totalHeight = (iconSize + iconGap) * this.upgradeChoices.length + 30;
+    } else {
+      // Horizontal layout for desktop
+      totalWidth = (iconSize + iconGap) * this.upgradeChoices.length;
+      totalHeight = iconSize + 40;
+    }
 
     // Draw panel background
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.fillRect(panelX - 10, panelY - 10, totalWidth + 20, iconSize + 40);
+    ctx.fillRect(panelX - 10, panelY - 10, totalWidth, totalHeight);
 
     // Draw available upgrades text
     ctx.fillStyle = "white";
@@ -423,8 +453,18 @@ const LevelSystem = {
     // Draw upgrade icons
     for (let i = 0; i < this.upgradeChoices.length; i++) {
       const choice = this.upgradeChoices[i];
-      const iconX = panelX + i * (iconSize + iconGap);
-      const iconY = panelY;
+
+      let iconX, iconY;
+
+      if (isMobile) {
+        // Vertical layout for mobile
+        iconX = panelX;
+        iconY = panelY + i * (iconSize + iconGap);
+      } else {
+        // Horizontal layout for desktop
+        iconX = panelX + i * (iconSize + iconGap);
+        iconY = panelY;
+      }
 
       // Draw icon background with pulse effect for visibility
       ctx.fillStyle = `rgba(50, 50, 80, ${pulse})`;
