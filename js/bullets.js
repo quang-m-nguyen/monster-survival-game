@@ -105,13 +105,6 @@ const Bullets = {
    */
   createTowardsMouse: function () {
     if (Player.shootCooldown <= 0) {
-      // Skip if on mobile with touch controls
-      if (Input.isMobile && Input.isTouching) {
-        // Fall back to regular direction-based shooting
-        this.create();
-        return;
-      }
-
       // Get player center in world coordinates
       const playerCenterX = Player.x + Player.width / 2;
       const playerCenterY = Player.y + Player.height / 2;
@@ -122,13 +115,27 @@ const Bullets = {
         playerCenterY
       );
 
-      // Calculate direction vector to mouse
-      const dx = Input.mouseX - playerScreenPos.x;
-      const dy = Input.mouseY - playerScreenPos.y;
+      // Determine target position based on whether we're using mouse or touch
+      let targetX, targetY;
 
-      // Only proceed if mouse is far enough from player to determine direction
+      if (Input.isMobile && Input.isTouching) {
+        // Use touch position for mobile
+        targetX = Input.touchX;
+        targetY = Input.touchY;
+        console.log(`Using touch target: ${targetX}, ${targetY}`);
+      } else {
+        // Use mouse position for desktop
+        targetX = Input.mouseX;
+        targetY = Input.mouseY;
+      }
+
+      // Calculate direction vector to target
+      const dx = targetX - playerScreenPos.x;
+      const dy = targetY - playerScreenPos.y;
+
+      // Only proceed if target is far enough from player to determine direction
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
-        // Mouse too close to player, fall back to regular shooting
+        // Target too close to player, fall back to regular shooting
         this.create();
         return;
       }
@@ -138,7 +145,7 @@ const Bullets = {
       const normalizedDx = dx / distance;
       const normalizedDy = dy / distance;
 
-      // Create the main antibody in the mouse direction
+      // Create the main antibody in the target direction
       this.createSingleAntibody(
         playerCenterX,
         playerCenterY,
@@ -157,16 +164,18 @@ const Bullets = {
         for (let i = 1; i < this.settings.streams; i++) {
           // Alternate between left and right spread
           const spreadFactor = (i % 2 === 1 ? 1 : -1) * Math.ceil(i / 2) * 0.3;
-          
+
           // Calculate spread direction by combining original direction with perpendicular
           const spreadDx = normalizedDx + perpDx * spreadFactor;
           const spreadDy = normalizedDy + perpDy * spreadFactor;
-          
+
           // Renormalize the spread direction
-          const spreadLength = Math.sqrt(spreadDx * spreadDx + spreadDy * spreadDy);
+          const spreadLength = Math.sqrt(
+            spreadDx * spreadDx + spreadDy * spreadDy
+          );
           const finalDx = spreadDx / spreadLength;
           const finalDy = spreadDy / spreadLength;
-          
+
           // Create the antibody in the spread direction
           this.createSingleAntibody(
             playerCenterX,

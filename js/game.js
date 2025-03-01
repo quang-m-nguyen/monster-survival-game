@@ -87,6 +87,9 @@ const Game = {
     // Increment frame count
     this.frameCount++;
 
+    // Update input state
+    Input.update();
+
     // Update player
     Player.update();
 

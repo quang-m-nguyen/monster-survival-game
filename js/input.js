@@ -175,8 +175,10 @@ const Input = {
     this.touchTargetX = worldPos.x;
     this.touchTargetY = worldPos.y;
 
-    // Show a visual indicator at the target position (optional)
-    Game.showMessage("Moving to target", 30);
+    // Also trigger a shot toward the touch position if cooldown allows
+    if (Player.shootCooldown <= 0) {
+      Bullets.createTowardsMouse();
+    }
 
     console.log(`Movement target set: ${worldPos.x}, ${worldPos.y}`);
   },
