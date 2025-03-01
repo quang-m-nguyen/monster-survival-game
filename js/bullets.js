@@ -131,15 +131,15 @@ const Bullets = {
   draw: function (ctx) {
     ctx.fillStyle = this.settings.color;
     this.list.forEach((bullet) => {
-      const screenX = bullet.x - Game.cameraOffsetX;
-      const screenY = bullet.y - Game.cameraOffsetY;
+      const screenX = bullet.x - Renderer.cameraOffsetX;
+      const screenY = bullet.y - Renderer.cameraOffsetY;
 
       // Only draw bullets that are on screen
       if (
         screenX + bullet.width > 0 &&
-        screenX < Game.canvas.width &&
+        screenX < Renderer.canvas.width &&
         screenY + bullet.height > 0 &&
-        screenY < Game.canvas.height
+        screenY < Renderer.canvas.height
       ) {
         ctx.fillRect(screenX, screenY, bullet.width, bullet.height);
       }

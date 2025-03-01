@@ -45,12 +45,12 @@ const Monsters = {
     switch (spawnSide) {
       case 0: // Top
         x = Math.random() * Game.worldSize.width;
-        y = Math.max(0, Game.cameraOffsetY - height * 2);
+        y = Math.max(0, Renderer.cameraOffsetY - height * 2);
         break;
       case 1: // Right
         x = Math.min(
           Game.worldSize.width,
-          Game.cameraOffsetX + Game.canvas.width + width * 2
+          Renderer.cameraOffsetX + Renderer.canvas.width + width * 2
         );
         y = Math.random() * Game.worldSize.height;
         break;
@@ -58,11 +58,11 @@ const Monsters = {
         x = Math.random() * Game.worldSize.width;
         y = Math.min(
           Game.worldSize.height,
-          Game.cameraOffsetY + Game.canvas.height + height * 2
+          Renderer.cameraOffsetY + Renderer.canvas.height + height * 2
         );
         break;
       case 3: // Left
-        x = Math.max(0, Game.cameraOffsetX - width * 2);
+        x = Math.max(0, Renderer.cameraOffsetX - width * 2);
         y = Math.random() * Game.worldSize.height;
         break;
     }
@@ -135,13 +135,7 @@ const Monsters = {
         );
 
         if (Player.health <= 0) {
-          Game.gameOver = true;
-          console.log(
-            "Game Over! Score: " +
-              Game.score +
-              ", Level: " +
-              LevelSystem.currentLevel
-          );
+          Game.endGame();
         }
       }
     }
@@ -151,15 +145,15 @@ const Monsters = {
   draw: function (ctx) {
     ctx.fillStyle = this.settings.color;
     this.list.forEach((monster) => {
-      const screenX = monster.x - Game.cameraOffsetX;
-      const screenY = monster.y - Game.cameraOffsetY;
+      const screenX = monster.x - Renderer.cameraOffsetX;
+      const screenY = monster.y - Renderer.cameraOffsetY;
 
       // Only draw monsters that are on screen
       if (
         screenX + monster.width > 0 &&
-        screenX < Game.canvas.width &&
+        screenX < Renderer.canvas.width &&
         screenY + monster.height > 0 &&
-        screenY < Game.canvas.height
+        screenY < Renderer.canvas.height
       ) {
         ctx.fillRect(screenX, screenY, monster.width, monster.height);
 

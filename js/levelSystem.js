@@ -180,8 +180,8 @@ const LevelSystem = {
       ctx.textAlign = "center";
       ctx.fillText(
         this.levelUpMessage,
-        Game.canvas.width / 2,
-        Game.canvas.height / 3
+        Renderer.canvas.width / 2,
+        Renderer.canvas.height / 3
       );
     }
 
@@ -193,8 +193,8 @@ const LevelSystem = {
       ctx.textAlign = "center";
       ctx.fillText(
         this.upgradeResult,
-        Game.canvas.width / 2,
-        Game.canvas.height / 4
+        Renderer.canvas.width / 2,
+        Renderer.canvas.height / 4
       );
     }
 
@@ -202,24 +202,28 @@ const LevelSystem = {
     if (this.showingUpgradeChoices) {
       // Draw semi-transparent background
       ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-      ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+      ctx.fillRect(0, 0, Renderer.canvas.width, Renderer.canvas.height);
 
       // Draw title
       ctx.fillStyle = "white";
       ctx.font = "36px Arial";
       ctx.textAlign = "center";
-      ctx.fillText("Choose an Upgrade", Game.canvas.width / 2, 100);
+      ctx.fillText("Choose an Upgrade", Renderer.canvas.width / 2, 100);
 
       // Draw instructions
       ctx.font = "18px Arial";
-      ctx.fillText("Press 1, 2, or 3 to select", Game.canvas.width / 2, 140);
+      ctx.fillText(
+        "Press 1, 2, or 3 to select",
+        Renderer.canvas.width / 2,
+        140
+      );
 
       // Draw choices
       const choiceWidth = 200;
       const choiceHeight = 220;
       const choiceGap = 30;
       const startX =
-        (Game.canvas.width - (choiceWidth * 3 + choiceGap * 2)) / 2;
+        (Renderer.canvas.width - (choiceWidth * 3 + choiceGap * 2)) / 2;
       const startY = 180;
 
       for (let i = 0; i < this.upgradeChoices.length; i++) {

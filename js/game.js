@@ -21,7 +21,7 @@ const Game = {
     color: "#3c3",
   },
 
-  // Camera/viewport offset
+  // Camera/viewport offset (needed for backward compatibility)
   cameraOffsetX: 0,
   cameraOffsetY: 0,
 
@@ -45,7 +45,7 @@ const Game = {
     // Initialize modules
     Renderer.init(this.canvas, this.worldSize);
     Input.init();
-    Player.init(this.worldSize.width / 2, this.worldSize.height / 2);
+    Player.init();
     Bullets.init();
     Monsters.init();
     LevelSystem.init();
@@ -72,6 +72,10 @@ const Game = {
     // Update camera
     Renderer.updateCamera(Player);
 
+    // Sync camera offsets for backward compatibility
+    this.cameraOffsetX = Renderer.cameraOffsetX;
+    this.cameraOffsetY = Renderer.cameraOffsetY;
+
     // Update bullets
     Bullets.update();
 
@@ -91,24 +95,34 @@ const Game = {
     Renderer.drawGround();
 
     // Draw monsters
-    Monsters.draw();
+    Monsters.draw(Renderer.ctx);
 
     // Draw bullets
-    Bullets.draw();
+    Bullets.draw(Renderer.ctx);
 
     // Draw player
-    Player.draw();
+    Player.draw(Renderer.ctx);
 
     // Draw HUD
     Renderer.drawHUD(Player, this.score, this.gameOver);
 
     // Draw level system
-    LevelSystem.draw();
+    LevelSystem.draw(Renderer.ctx);
 
     // Draw game over screen if needed
     if (this.gameOver) {
       Renderer.drawGameOver(this.score, LevelSystem.currentLevel);
     }
+  },
+
+  // Check for collision between two objects
+  checkCollision: function (obj1, obj2) {
+    return (
+      obj1.x < obj2.x + obj2.width &&
+      obj1.x + obj1.width > obj2.x &&
+      obj1.y < obj2.y + obj2.height &&
+      obj1.y + obj1.height > obj2.y
+    );
   },
 
   // End the game

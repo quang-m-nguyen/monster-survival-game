@@ -19,12 +19,19 @@ const Player = {
   init: function () {
     this.x = Game.worldSize.width / 2;
     this.y = Game.worldSize.height / 2;
+    this.width = 40;
+    this.height = 40;
     this.speed = 5;
     this.health = 100;
     this.maxHealth = 100;
     this.shootCooldown = 0;
     this.direction = "right";
     this.lifeStealAmount = 0;
+  },
+
+  // Reset player (for game restart)
+  reset: function () {
+    this.init();
   },
 
   // Update player state
@@ -80,46 +87,35 @@ const Player = {
 
   // Draw player
   draw: function (ctx) {
+    // Get screen coordinates
+    const screenX = this.x - Renderer.cameraOffsetX;
+    const screenY = this.y - Renderer.cameraOffsetY;
+
     // Draw player
     ctx.fillStyle = this.color;
-    ctx.fillRect(
-      this.x - Game.cameraOffsetX,
-      this.y - Game.cameraOffsetY,
-      this.width,
-      this.height
-    );
+    ctx.fillRect(screenX, screenY, this.width, this.height);
 
     // Draw player direction indicator
     ctx.fillStyle = "#0ff";
     switch (this.direction) {
       case "right":
         ctx.fillRect(
-          this.x - Game.cameraOffsetX + this.width,
-          this.y - Game.cameraOffsetY + this.height / 2 - 2,
+          screenX + this.width,
+          screenY + this.height / 2 - 2,
           10,
           4
         );
         break;
       case "left":
-        ctx.fillRect(
-          this.x - Game.cameraOffsetX - 10,
-          this.y - Game.cameraOffsetY + this.height / 2 - 2,
-          10,
-          4
-        );
+        ctx.fillRect(screenX - 10, screenY + this.height / 2 - 2, 10, 4);
         break;
       case "up":
-        ctx.fillRect(
-          this.x - Game.cameraOffsetX + this.width / 2 - 2,
-          this.y - Game.cameraOffsetY - 10,
-          4,
-          10
-        );
+        ctx.fillRect(screenX + this.width / 2 - 2, screenY - 10, 4, 10);
         break;
       case "down":
         ctx.fillRect(
-          this.x - Game.cameraOffsetX + this.width / 2 - 2,
-          this.y - Game.cameraOffsetY + this.height,
+          screenX + this.width / 2 - 2,
+          screenY + this.height,
           4,
           10
         );
