@@ -6,8 +6,8 @@
     { "src": "js/**/*.js", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/game", "dest": "/game.html" },
+    { "src": "/", "dest": "/game.html" },
+    { "src": "/index", "dest": "/index.html" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 } 
