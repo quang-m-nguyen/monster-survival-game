@@ -25,6 +25,10 @@ const Game = {
   cameraOffsetX: 0,
   cameraOffsetY: 0,
 
+  // Message system
+  message: "",
+  messageTimer: 0,
+
   // Initialize the game
   init: function () {
     console.log("Game initializing...");
@@ -49,6 +53,9 @@ const Game = {
     Bullets.init();
     Monsters.init();
     LevelSystem.init();
+
+    // Show initial auto-fire message
+    this.showMessage("Auto-fire enabled - Press F to toggle", 120);
 
     // Start game loop
     console.log("Starting game loop...");
@@ -84,6 +91,11 @@ const Game = {
 
     // Update level system
     LevelSystem.update();
+
+    // Update message timer
+    if (this.messageTimer > 0) {
+      this.messageTimer--;
+    }
   },
 
   // Draw everything on the canvas
@@ -109,9 +121,33 @@ const Game = {
     // Draw level system
     LevelSystem.draw(Renderer.ctx);
 
+    // Draw status message if active
+    this.drawMessage();
+
     // Draw game over screen if needed
     if (this.gameOver) {
       Renderer.drawGameOver(this.score, LevelSystem.currentLevel);
+    }
+  },
+
+  // Show a status message
+  showMessage: function (text, duration) {
+    this.message = text;
+    this.messageTimer = duration || 60; // Default 1 second at 60 FPS
+  },
+
+  // Draw the current status message
+  drawMessage: function () {
+    if (this.messageTimer > 0) {
+      const alpha = Math.min(1, this.messageTimer / 30); // Fade out in the last half second
+      Renderer.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      Renderer.ctx.font = "20px Arial";
+      Renderer.ctx.textAlign = "center";
+      Renderer.ctx.fillText(
+        this.message,
+        Renderer.canvas.width / 2,
+        Renderer.canvas.height - 60
+      );
     }
   },
 
@@ -138,12 +174,17 @@ const Game = {
     // Reset game state
     this.gameOver = false;
     this.score = 0;
+    this.message = "";
+    this.messageTimer = 0;
 
     // Reset modules
     Player.reset();
     Bullets.init();
     Monsters.init();
     LevelSystem.init();
+
+    // Show initial auto-fire message
+    this.showMessage("Auto-fire enabled - Press F to toggle", 120);
 
     console.log("Game restarted");
   },

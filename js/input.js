@@ -17,12 +17,23 @@ const Input = {
         return;
       }
 
-      // Fire bullet when pressing space
+      // Toggle auto-fire with 'F' key
+      if (e.key === "f" || e.key === "F") {
+        const autoFireEnabled = Player.toggleAutoFire();
+        console.log("Auto-fire " + (autoFireEnabled ? "enabled" : "disabled"));
+
+        // Show auto-fire status message
+        Game.showMessage(
+          "Auto-fire " + (autoFireEnabled ? "enabled" : "disabled"),
+          60
+        );
+
+        return;
+      }
+
+      // Manual fire with space (even with auto-fire enabled)
       if (e.key === " " && Player.shootCooldown <= 0) {
         Bullets.create();
-
-        // Set cooldown
-        Player.shootCooldown = Bullets.settings.cooldown;
       }
 
       // Restart game when pressing R

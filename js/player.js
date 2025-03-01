@@ -14,6 +14,7 @@ const Player = {
   maxHealth: 100,
   direction: "right", // Current facing direction: 'right', 'left', 'up', 'down'
   lifeStealAmount: 0, // Amount of health gained per monster kill
+  autoFire: true, // Auto-fire bullets
 
   // Initialize player
   init: function () {
@@ -27,6 +28,7 @@ const Player = {
     this.shootCooldown = 0;
     this.direction = "right";
     this.lifeStealAmount = 0;
+    this.autoFire = true;
   },
 
   // Reset player (for game restart)
@@ -41,6 +43,11 @@ const Player = {
     // Decrease shoot cooldown
     if (this.shootCooldown > 0) {
       this.shootCooldown--;
+    }
+
+    // Auto-fire bullets when cooldown is ready
+    if (this.autoFire && this.shootCooldown <= 0) {
+      Bullets.create();
     }
 
     // Update player position based on key presses
@@ -73,6 +80,12 @@ const Player = {
     // Keep player within world bounds
     this.x = Math.max(0, Math.min(Game.worldSize.width - this.width, this.x));
     this.y = Math.max(0, Math.min(Game.worldSize.height - this.height, this.y));
+  },
+
+  // Toggle auto-fire
+  toggleAutoFire: function () {
+    this.autoFire = !this.autoFire;
+    return this.autoFire;
   },
 
   // Handle monster kill (for life steal)

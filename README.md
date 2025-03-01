@@ -5,7 +5,8 @@ A top-down survival game where you fight off endless waves of monsters while lev
 ## Game Features
 
 - Free movement in all directions
-- Shooting in four directions (up, down, left, right)
+- Automatic shooting in four directions (up, down, left, right)
+- Toggle auto-fire on/off
 - Monster spawning from all sides
 - Level-up system with weapon upgrades
 - Health system with life steal ability
@@ -15,7 +16,9 @@ A top-down survival game where you fight off endless waves of monsters while lev
 ## Controls
 
 - **WASD or Arrow Keys**: Move the player
-- **Space**: Shoot in the current direction
+- **Auto-fire**: Automatically shoots in the current direction
+- **F**: Toggle auto-fire on/off
+- **Space**: Shoot manually (even with auto-fire on)
 - **1, 2, 3**: Select upgrade option when leveling up
 - **R**: Restart the game when game over
 
