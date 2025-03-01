@@ -138,46 +138,91 @@ const Bullets = {
       const normalizedDx = dx / distance;
       const normalizedDy = dy / distance;
 
-      // Convert screen direction to world direction
-      // (no need to convert since we're just using the normalized vector)
+      // Create the main antibody in the mouse direction
+      this.createSingleAntibody(
+        playerCenterX,
+        playerCenterY,
+        normalizedDx,
+        normalizedDy
+      );
 
-      // Calculate bullet starting position
-      // Start from the edge of the player in the direction of the mouse
-      const bulletX = playerCenterX + (normalizedDx * Player.width) / 2;
-      const bulletY = playerCenterY + (normalizedDy * Player.height) / 2;
+      // Add additional antibodies for multi-stream
+      if (this.settings.streams > 1) {
+        // Calculate perpendicular vectors for additional streams
+        // Perpendicular to (dx, dy) is (-dy, dx) and (dy, -dx)
+        const perpDx = -normalizedDy;
+        const perpDy = normalizedDx;
 
-      // Calculate bullet velocity
-      const velocityX = normalizedDx * this.settings.speed;
-      const velocityY = normalizedDy * this.settings.speed;
-
-      // Determine the closest cardinal direction for animation purposes
-      let direction;
-      if (Math.abs(normalizedDx) > Math.abs(normalizedDy)) {
-        direction = normalizedDx > 0 ? "right" : "left";
-      } else {
-        direction = normalizedDy > 0 ? "down" : "up";
+        // Create additional streams with spread
+        for (let i = 1; i < this.settings.streams; i++) {
+          // Alternate between left and right spread
+          const spreadFactor = (i % 2 === 1 ? 1 : -1) * Math.ceil(i / 2) * 0.3;
+          
+          // Calculate spread direction by combining original direction with perpendicular
+          const spreadDx = normalizedDx + perpDx * spreadFactor;
+          const spreadDy = normalizedDy + perpDy * spreadFactor;
+          
+          // Renormalize the spread direction
+          const spreadLength = Math.sqrt(spreadDx * spreadDx + spreadDy * spreadDy);
+          const finalDx = spreadDx / spreadLength;
+          const finalDy = spreadDy / spreadLength;
+          
+          // Create the antibody in the spread direction
+          this.createSingleAntibody(
+            playerCenterX,
+            playerCenterY,
+            finalDx,
+            finalDy
+          );
+        }
       }
-
-      // Create the antibody
-      this.list.push({
-        x: bulletX,
-        y: bulletY,
-        width: this.settings.width,
-        height: this.settings.height,
-        velocityX,
-        velocityY,
-        distance: 0,
-        direction: direction, // Store the direction for reference
-        rotation: Math.random() * Math.PI * 2, // Random rotation for Y-shaped antibody
-        rotationSpeed: (Math.random() - 0.5) * 0.2, // Rotation speed
-        scale: 0.8 + Math.random() * 0.4, // Random size variation
-        wobble: Math.random() * Math.PI * 2, // Phase for wobble animation
-        wobbleSpeed: 0.1 + Math.random() * 0.1, // Speed of wobble
-      });
 
       // Set cooldown
       Player.shootCooldown = this.settings.cooldown;
     }
+  },
+
+  /**
+   * Helper function to create a single antibody in a specific direction
+   * @param {number} startX - Starting X position
+   * @param {number} startY - Starting Y position
+   * @param {number} dirX - X direction vector (normalized)
+   * @param {number} dirY - Y direction vector (normalized)
+   */
+  createSingleAntibody: function (startX, startY, dirX, dirY) {
+    // Calculate bullet starting position
+    // Start from the edge of the player in the direction
+    const bulletX = startX + (dirX * Player.width) / 2;
+    const bulletY = startY + (dirY * Player.height) / 2;
+
+    // Calculate bullet velocity
+    const velocityX = dirX * this.settings.speed;
+    const velocityY = dirY * this.settings.speed;
+
+    // Determine the closest cardinal direction for animation purposes
+    let direction;
+    if (Math.abs(dirX) > Math.abs(dirY)) {
+      direction = dirX > 0 ? "right" : "left";
+    } else {
+      direction = dirY > 0 ? "down" : "up";
+    }
+
+    // Create the antibody
+    this.list.push({
+      x: bulletX,
+      y: bulletY,
+      width: this.settings.width,
+      height: this.settings.height,
+      velocityX,
+      velocityY,
+      distance: 0,
+      direction: direction, // Store the direction for reference
+      rotation: Math.random() * Math.PI * 2, // Random rotation for Y-shaped antibody
+      rotationSpeed: (Math.random() - 0.5) * 0.2, // Rotation speed
+      scale: 0.8 + Math.random() * 0.4, // Random size variation
+      wobble: Math.random() * Math.PI * 2, // Phase for wobble animation
+      wobbleSpeed: 0.1 + Math.random() * 0.1, // Speed of wobble
+    });
   },
 
   // Update all antibodies

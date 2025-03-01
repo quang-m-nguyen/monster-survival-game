@@ -102,14 +102,14 @@ const Renderer = {
    * Draw the game ground and grid
    */
   drawGround: function () {
-    // Create a biology-themed background
+    // Create a biology-themed background with better contrast for green projectiles
     const ctx = this.ctx;
 
-    // Fill with cell fluid background
+    // Fill with cell fluid background (changing from blue to a warmer tone)
     const fluidGradient = ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-    fluidGradient.addColorStop(0, "#e0f7fa"); // Light cyan
-    fluidGradient.addColorStop(0.5, "#b2ebf2"); // Cyan
-    fluidGradient.addColorStop(1, "#80deea"); // Light blue
+    fluidGradient.addColorStop(0, "#3e2723"); // Dark brown
+    fluidGradient.addColorStop(0.5, "#4e342e"); // Medium brown
+    fluidGradient.addColorStop(1, "#5d4037"); // Light brown
     ctx.fillStyle = fluidGradient;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -179,7 +179,7 @@ const Renderer = {
     ctx.globalAlpha = 1.0;
 
     // Draw grid for visual reference (cell membrane structures)
-    ctx.strokeStyle = "rgba(0, 150, 136, 0.2)";
+    ctx.strokeStyle = "rgba(255, 193, 7, 0.2)"; // Amber color for grid
     ctx.lineWidth = 1;
 
     // Calculate grid spacing based on zoom factor
@@ -208,7 +208,7 @@ const Renderer = {
     }
 
     // Draw world boundaries (cell membrane)
-    ctx.strokeStyle = "rgba(0, 121, 107, 0.6)";
+    ctx.strokeStyle = "rgba(255, 160, 0, 0.6)"; // Orange border
     ctx.lineWidth = 3;
     ctx.strokeRect(
       -this.cameraOffsetX / this.zoomFactor,
@@ -236,11 +236,11 @@ const Renderer = {
     // Create cell membrane structures
     const numStructures = 15;
     const colors = [
-      "rgba(178, 223, 219, 0.4)", // Pale teal
-      "rgba(128, 203, 196, 0.4)", // Light teal
-      "rgba(77, 182, 172, 0.4)", // Teal
-      "rgba(38, 166, 154, 0.4)", // Medium teal
-      "rgba(0, 150, 136, 0.4)", // Dark teal
+      "rgba(255, 224, 178, 0.4)", // Light orange
+      "rgba(255, 204, 128, 0.4)", // Orange
+      "rgba(255, 183, 77, 0.4)", // Medium orange
+      "rgba(255, 152, 0, 0.4)", // Dark orange
+      "rgba(239, 108, 0, 0.4)", // Deep orange
     ];
 
     // Draw larger cell structures
@@ -266,7 +266,7 @@ const Renderer = {
         const orgY = y + (Math.random() * 2 - 1) * radius * 0.5;
         const orgRadius = radius * (0.1 + Math.random() * 0.2);
 
-        textureCtx.fillStyle = "rgba(0, 137, 123, 0.5)";
+        textureCtx.fillStyle = "rgba(255, 143, 0, 0.5)"; // Orange organelles
         textureCtx.beginPath();
         textureCtx.arc(orgX, orgY, orgRadius, 0, Math.PI * 2);
         textureCtx.fill();
@@ -303,14 +303,14 @@ const Renderer = {
 
       switch (type) {
         case 0: // Round bacteria
-          microCtx.fillStyle = "rgba(0, 150, 136, 0.4)"; // Teal
+          microCtx.fillStyle = "rgba(255, 138, 101, 0.4)"; // Light red-orange
           microCtx.beginPath();
           microCtx.arc(x, y, size, 0, Math.PI * 2);
           microCtx.fill();
           break;
 
         case 1: // Rod-shaped bacteria
-          microCtx.fillStyle = "rgba(0, 188, 212, 0.4)"; // Cyan
+          microCtx.fillStyle = "rgba(255, 112, 67, 0.4)"; // Deep orange
           microCtx.beginPath();
           microCtx.ellipse(
             x,
@@ -325,7 +325,7 @@ const Renderer = {
           break;
 
         case 2: // Spiral bacteria
-          microCtx.strokeStyle = "rgba(3, 169, 244, 0.5)"; // Light blue
+          microCtx.strokeStyle = "rgba(255, 202, 40, 0.5)"; // Amber
           microCtx.lineWidth = size / 2;
           microCtx.beginPath();
 
@@ -351,7 +351,7 @@ const Renderer = {
           break;
 
         case 3: // Amoeba-like
-          microCtx.fillStyle = "rgba(0, 121, 107, 0.3)"; // Dark teal
+          microCtx.fillStyle = "rgba(255, 171, 64, 0.3)"; // Orange
           microCtx.beginPath();
 
           // Create a blob shape with random bumps
