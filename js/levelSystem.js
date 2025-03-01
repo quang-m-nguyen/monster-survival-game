@@ -93,6 +93,12 @@ const LevelSystem = {
       Player.health = Math.min(Player.health + 20, Player.maxHealth); // Heal on level up
       Player.speed += 0.2; // Slight speed increase
 
+      // Increase player size (up to a maximum)
+      this.increasePlayerSize();
+
+      // Increase bullet size
+      this.increaseBulletSize();
+
       // Increase monster difficulty
       Monsters.settings.speed += 0.1;
 
@@ -100,6 +106,51 @@ const LevelSystem = {
     }
 
     return false;
+  },
+
+  // Increase player size on level up
+  increasePlayerSize: function () {
+    // Increase size by 5% per level, up to a maximum of 100% increase (2x original size)
+    const maxSizeMultiplier = 2.0; // Maximum size is 2x the original
+    const sizeIncreasePerLevel = 0.05; // 5% increase per level
+
+    // Calculate new size based on level
+    const sizeMultiplier = Math.min(
+      maxSizeMultiplier,
+      1 + (this.currentLevel - 1) * sizeIncreasePerLevel
+    );
+
+    // Update player size
+    Player.width = Math.floor(40 * sizeMultiplier);
+    Player.height = Math.floor(40 * sizeMultiplier);
+
+    // Adjust player position to prevent going out of bounds after size increase
+    Player.x = Math.min(Player.x, Game.worldSize.width - Player.width);
+    Player.y = Math.min(Player.y, Game.worldSize.height - Player.height);
+
+    Game.showMessage(
+      `Player size increased to ${Math.floor(
+        sizeMultiplier * 100
+      )}% of original`,
+      60
+    );
+  },
+
+  // Increase bullet size on level up
+  increaseBulletSize: function () {
+    // Increase bullet size by 5% per level, up to a maximum of 100% increase
+    const maxSizeMultiplier = 2.0;
+    const sizeIncreasePerLevel = 0.05;
+
+    // Calculate new size based on level
+    const sizeMultiplier = Math.min(
+      maxSizeMultiplier,
+      1 + (this.currentLevel - 1) * sizeIncreasePerLevel
+    );
+
+    // Update bullet size
+    Bullets.settings.width = Math.floor(10 * sizeMultiplier);
+    Bullets.settings.height = Math.floor(5 * sizeMultiplier);
   },
 
   // Handle upgrade selection

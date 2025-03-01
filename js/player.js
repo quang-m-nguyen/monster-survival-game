@@ -7,6 +7,8 @@ const Player = {
   y: 0,
   width: 40,
   height: 40,
+  originalWidth: 40, // Store original width for reset
+  originalHeight: 40, // Store original height for reset
   speed: 5,
   color: "white",
   shootCooldown: 0,
@@ -20,8 +22,8 @@ const Player = {
   init: function () {
     this.x = Game.worldSize.width / 2;
     this.y = Game.worldSize.height / 2;
-    this.width = 40;
-    this.height = 40;
+    this.width = this.originalWidth;
+    this.height = this.originalHeight;
     this.speed = 5;
     this.health = 100;
     this.maxHealth = 100;

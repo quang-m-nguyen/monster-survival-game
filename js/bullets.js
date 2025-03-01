@@ -9,6 +9,8 @@ const Bullets = {
   settings: {
     width: 10,
     height: 5,
+    originalWidth: 10, // Store original width for reset
+    originalHeight: 5, // Store original height for reset
     speed: 15,
     color: "#ff0",
     cooldown: 15, // Frames between shots
@@ -19,6 +21,9 @@ const Bullets = {
   // Initialize bullets
   init: function () {
     this.list = [];
+    // Reset bullet size to original
+    this.settings.width = this.settings.originalWidth;
+    this.settings.height = this.settings.originalHeight;
   },
 
   // Create a new bullet
