@@ -73,6 +73,9 @@ const Monsters = {
     // Reset pathogen size to original
     this.settings.width = this.settings.originalWidth;
     this.settings.height = this.settings.originalHeight;
+    // Initialize difficulty multipliers
+    this.settings.healthMultiplier = 1;
+    this.settings.damageMultiplier = 1;
   },
 
   // Create a new pathogen
@@ -120,7 +123,7 @@ const Monsters = {
     const health =
       this.settings.maxHealth *
       type.healthMultiplier *
-      (1 + (LevelSystem.currentLevel - 1) * 0.2);
+      (this.settings.healthMultiplier || 1); // Use the global health multiplier if available
 
     // Create the pathogen
     const newPathogen = {
@@ -132,7 +135,10 @@ const Monsters = {
       health,
       maxHealth: health,
       speed: this.settings.speed * type.speedMultiplier,
-      damage: this.settings.damage * type.damageMultiplier,
+      damage:
+        this.settings.damage *
+        type.damageMultiplier *
+        (this.settings.damageMultiplier || 1), // Use the global damage multiplier if available
       // Animation properties
       rotation: Math.random() * Math.PI * 2,
       rotationSpeed: (Math.random() - 0.5) * 0.05,

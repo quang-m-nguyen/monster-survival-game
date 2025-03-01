@@ -181,13 +181,44 @@ const LevelSystem = {
     // Apply the calculated speed increase
     Monsters.settings.speed += speedIncrease;
 
+    // Scale monster health based on level
+    // More aggressive scaling for health
+    if (this.currentLevel <= 5) {
+      Monsters.settings.healthMultiplier = 1 + (this.currentLevel - 1) * 0.2; // +20% per level
+    } else if (this.currentLevel <= 10) {
+      Monsters.settings.healthMultiplier = 1.8 + (this.currentLevel - 5) * 0.3; // +30% per level
+    } else if (this.currentLevel <= 15) {
+      Monsters.settings.healthMultiplier = 3.3 + (this.currentLevel - 10) * 0.4; // +40% per level
+    } else if (this.currentLevel <= 20) {
+      Monsters.settings.healthMultiplier = 5.3 + (this.currentLevel - 15) * 0.5; // +50% per level
+    } else {
+      Monsters.settings.healthMultiplier = 7.8 + (this.currentLevel - 20) * 0.6; // +60% per level
+    }
+
+    // Scale monster damage based on level
+    if (this.currentLevel <= 5) {
+      Monsters.settings.damageMultiplier = 1 + (this.currentLevel - 1) * 0.1; // +10% per level
+    } else if (this.currentLevel <= 10) {
+      Monsters.settings.damageMultiplier = 1.4 + (this.currentLevel - 5) * 0.15; // +15% per level
+    } else if (this.currentLevel <= 15) {
+      Monsters.settings.damageMultiplier =
+        2.15 + (this.currentLevel - 10) * 0.2; // +20% per level
+    } else if (this.currentLevel <= 20) {
+      Monsters.settings.damageMultiplier =
+        3.15 + (this.currentLevel - 15) * 0.25; // +25% per level
+    } else {
+      Monsters.settings.damageMultiplier = 4.4 + (this.currentLevel - 20) * 0.3; // +30% per level
+    }
+
     // Optionally show a message about monster difficulty
     if (this.currentLevel % 5 === 0) {
       Game.showMessage(
         `Monsters are getting stronger! Speed: ${Monsters.settings.speed.toFixed(
           1
-        )}`,
-        120
+        )}, Health: ${Monsters.settings.healthMultiplier.toFixed(
+          1
+        )}x, Damage: ${Monsters.settings.damageMultiplier.toFixed(1)}x`,
+        180
       );
     }
   },
@@ -495,10 +526,14 @@ const LevelSystem = {
     // Draw hint text
     ctx.font = isMobile ? "12px Arial" : "14px Arial";
     ctx.textAlign = "left";
-    ctx.fillText(
-      isMobile ? "Tap or press key" : "Press key or click to upgrade",
-      panelX,
-      panelY + iconSize + 20
-    );
+
+    // Only show hint text on desktop, not on mobile
+    if (!isMobile) {
+      ctx.fillText(
+        "Press key or click to upgrade",
+        panelX,
+        panelY + iconSize + 20
+      );
+    }
   },
 };
