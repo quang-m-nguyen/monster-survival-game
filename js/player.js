@@ -102,37 +102,51 @@ const Player = {
 
   // Draw player
   draw: function (ctx) {
-    // Get screen coordinates
-    const screenX = this.x - Renderer.cameraOffsetX;
-    const screenY = this.y - Renderer.cameraOffsetY;
+    // Get screen coordinates using Renderer's worldToScreen method
+    const screenPos = Renderer.worldToScreen(this.x, this.y);
+    const screenWidth = this.width / Renderer.zoomFactor;
+    const screenHeight = this.height / Renderer.zoomFactor;
 
     // Draw player
     ctx.fillStyle = this.color;
-    ctx.fillRect(screenX, screenY, this.width, this.height);
+    ctx.fillRect(screenPos.x, screenPos.y, screenWidth, screenHeight);
 
     // Draw player direction indicator
     ctx.fillStyle = "#0ff";
+    const indicatorSize = 10 / Renderer.zoomFactor;
+    const indicatorThickness = 4 / Renderer.zoomFactor;
+
     switch (this.direction) {
       case "right":
         ctx.fillRect(
-          screenX + this.width,
-          screenY + this.height / 2 - 2,
-          10,
-          4
+          screenPos.x + screenWidth,
+          screenPos.y + screenHeight / 2 - indicatorThickness / 2,
+          indicatorSize,
+          indicatorThickness
         );
         break;
       case "left":
-        ctx.fillRect(screenX - 10, screenY + this.height / 2 - 2, 10, 4);
+        ctx.fillRect(
+          screenPos.x - indicatorSize,
+          screenPos.y + screenHeight / 2 - indicatorThickness / 2,
+          indicatorSize,
+          indicatorThickness
+        );
         break;
       case "up":
-        ctx.fillRect(screenX + this.width / 2 - 2, screenY - 10, 4, 10);
+        ctx.fillRect(
+          screenPos.x + screenWidth / 2 - indicatorThickness / 2,
+          screenPos.y - indicatorSize,
+          indicatorThickness,
+          indicatorSize
+        );
         break;
       case "down":
         ctx.fillRect(
-          screenX + this.width / 2 - 2,
-          screenY + this.height,
-          4,
-          10
+          screenPos.x + screenWidth / 2 - indicatorThickness / 2,
+          screenPos.y + screenHeight,
+          indicatorThickness,
+          indicatorSize
         );
         break;
     }

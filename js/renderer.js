@@ -8,6 +8,7 @@ const Renderer = {
   cameraOffsetX: 0,
   cameraOffsetY: 0,
   worldSize: { width: 0, height: 0 },
+  zoomFactor: 1, // Default zoom factor (1 = no zoom)
 
   /**
    * Initialize the renderer
@@ -22,6 +23,35 @@ const Renderer = {
     // Set canvas to fill the window
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
+
+    // Set initial zoom factor based on screen size
+    this.updateZoomFactor();
+  },
+
+  /**
+   * Update the zoom factor based on screen size
+   */
+  updateZoomFactor: function () {
+    const screenWidth = window.innerWidth;
+
+    // Apply zoom out for smaller screens
+    if (screenWidth < 480) {
+      // Small mobile devices - zoom out more
+      this.zoomFactor = 1.5;
+    } else if (screenWidth < 768) {
+      // Medium mobile devices
+      this.zoomFactor = 1.3;
+    } else if (screenWidth < 1024) {
+      // Tablets and larger phones
+      this.zoomFactor = 1.15;
+    } else {
+      // Desktop and larger screens
+      this.zoomFactor = 1;
+    }
+
+    console.log(
+      `Screen width: ${screenWidth}px, Zoom factor: ${this.zoomFactor}`
+    );
   },
 
   /**
@@ -30,6 +60,9 @@ const Renderer = {
   resizeCanvas: function () {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+
+    // Update zoom factor when resizing
+    this.updateZoomFactor();
   },
 
   /**
@@ -37,18 +70,22 @@ const Renderer = {
    * @param {Object} player - The player object
    */
   updateCamera: function (player) {
-    // Center camera on player
-    this.cameraOffsetX = player.x - this.canvas.width / 2;
-    this.cameraOffsetY = player.y - this.canvas.height / 2;
+    // Apply zoom factor to show more of the game world
+    const viewportWidth = this.canvas.width * this.zoomFactor;
+    const viewportHeight = this.canvas.height * this.zoomFactor;
+
+    // Center camera on player with zoom factor applied
+    this.cameraOffsetX = player.x - viewportWidth / 2 + player.width / 2;
+    this.cameraOffsetY = player.y - viewportHeight / 2 + player.height / 2;
 
     // Keep camera within world bounds
     this.cameraOffsetX = Math.max(
       0,
-      Math.min(this.worldSize.width - this.canvas.width, this.cameraOffsetX)
+      Math.min(this.worldSize.width - viewportWidth, this.cameraOffsetX)
     );
     this.cameraOffsetY = Math.max(
       0,
-      Math.min(this.worldSize.height - this.canvas.height, this.cameraOffsetY)
+      Math.min(this.worldSize.height - viewportHeight, this.cameraOffsetY)
     );
   },
 
@@ -71,9 +108,13 @@ const Renderer = {
     this.ctx.strokeStyle = "#555";
     this.ctx.lineWidth = 1;
 
+    // Calculate grid spacing based on zoom factor
+    const gridSpacing = 100;
+    const zoomedGridSpacing = gridSpacing / this.zoomFactor;
+
     // Vertical grid lines
-    for (let x = 0; x < this.worldSize.width; x += 100) {
-      const screenX = x - this.cameraOffsetX;
+    for (let x = 0; x < this.worldSize.width; x += gridSpacing) {
+      const screenX = this.worldToScreen(x, 0).x;
       if (screenX >= 0 && screenX <= this.canvas.width) {
         this.ctx.beginPath();
         this.ctx.moveTo(screenX, 0);
@@ -83,8 +124,8 @@ const Renderer = {
     }
 
     // Horizontal grid lines
-    for (let y = 0; y < this.worldSize.height; y += 100) {
-      const screenY = y - this.cameraOffsetY;
+    for (let y = 0; y < this.worldSize.height; y += gridSpacing) {
+      const screenY = this.worldToScreen(0, y).y;
       if (screenY >= 0 && screenY <= this.canvas.height) {
         this.ctx.beginPath();
         this.ctx.moveTo(0, screenY);
@@ -97,10 +138,10 @@ const Renderer = {
     this.ctx.strokeStyle = "#fff";
     this.ctx.lineWidth = 2;
     this.ctx.strokeRect(
-      -this.cameraOffsetX,
-      -this.cameraOffsetY,
-      this.worldSize.width,
-      this.worldSize.height
+      -this.cameraOffsetX / this.zoomFactor,
+      -this.cameraOffsetY / this.zoomFactor,
+      this.worldSize.width / this.zoomFactor,
+      this.worldSize.height / this.zoomFactor
     );
   },
 
@@ -191,8 +232,8 @@ const Renderer = {
    */
   worldToScreen: function (x, y) {
     return {
-      x: x - this.cameraOffsetX,
-      y: y - this.cameraOffsetY,
+      x: (x - this.cameraOffsetX) / this.zoomFactor,
+      y: (y - this.cameraOffsetY) / this.zoomFactor,
     };
   },
 };

@@ -159,17 +159,19 @@ const Bullets = {
   draw: function (ctx) {
     ctx.fillStyle = this.settings.color;
     this.list.forEach((bullet) => {
-      const screenX = bullet.x - Renderer.cameraOffsetX;
-      const screenY = bullet.y - Renderer.cameraOffsetY;
+      // Get screen coordinates using Renderer's worldToScreen method
+      const screenPos = Renderer.worldToScreen(bullet.x, bullet.y);
+      const screenWidth = bullet.width / Renderer.zoomFactor;
+      const screenHeight = bullet.height / Renderer.zoomFactor;
 
       // Only draw bullets that are on screen
       if (
-        screenX + bullet.width > 0 &&
-        screenX < Renderer.canvas.width &&
-        screenY + bullet.height > 0 &&
-        screenY < Renderer.canvas.height
+        screenPos.x + screenWidth > 0 &&
+        screenPos.x < Renderer.canvas.width &&
+        screenPos.y + screenHeight > 0 &&
+        screenPos.y < Renderer.canvas.height
       ) {
-        ctx.fillRect(screenX, screenY, bullet.width, bullet.height);
+        ctx.fillRect(screenPos.x, screenPos.y, screenWidth, screenHeight);
       }
     });
   },

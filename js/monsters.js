@@ -38,6 +38,10 @@ const Monsters = {
         Math.random() * (this.settings.maxHeight - this.settings.minHeight + 1)
       ) + this.settings.minHeight;
 
+    // Calculate the visible area accounting for zoom factor
+    const visibleWidth = Renderer.canvas.width * Renderer.zoomFactor;
+    const visibleHeight = Renderer.canvas.height * Renderer.zoomFactor;
+
     // Determine spawn position (outside the visible area)
     let x, y;
     const spawnSide = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
@@ -50,7 +54,7 @@ const Monsters = {
       case 1: // Right
         x = Math.min(
           Game.worldSize.width,
-          Renderer.cameraOffsetX + Renderer.canvas.width + width * 2
+          Renderer.cameraOffsetX + visibleWidth + width * 2
         );
         y = Math.random() * Game.worldSize.height;
         break;
@@ -58,7 +62,7 @@ const Monsters = {
         x = Math.random() * Game.worldSize.width;
         y = Math.min(
           Game.worldSize.height,
-          Renderer.cameraOffsetY + Renderer.canvas.height + height * 2
+          Renderer.cameraOffsetY + visibleHeight + height * 2
         );
         break;
       case 3: // Left
@@ -145,24 +149,34 @@ const Monsters = {
   draw: function (ctx) {
     ctx.fillStyle = this.settings.color;
     this.list.forEach((monster) => {
-      const screenX = monster.x - Renderer.cameraOffsetX;
-      const screenY = monster.y - Renderer.cameraOffsetY;
+      // Get screen coordinates using Renderer's worldToScreen method
+      const screenPos = Renderer.worldToScreen(monster.x, monster.y);
+      const screenWidth = monster.width / Renderer.zoomFactor;
+      const screenHeight = monster.height / Renderer.zoomFactor;
 
       // Only draw monsters that are on screen
       if (
-        screenX + monster.width > 0 &&
-        screenX < Renderer.canvas.width &&
-        screenY + monster.height > 0 &&
-        screenY < Renderer.canvas.height
+        screenPos.x + screenWidth > 0 &&
+        screenPos.x < Renderer.canvas.width &&
+        screenPos.y + screenHeight > 0 &&
+        screenPos.y < Renderer.canvas.height
       ) {
-        ctx.fillRect(screenX, screenY, monster.width, monster.height);
+        ctx.fillRect(screenPos.x, screenPos.y, screenWidth, screenHeight);
 
         // Draw monster health bar
         const healthPercent = monster.health / monster.maxHealth;
+        const healthBarHeight = 5 / Renderer.zoomFactor;
+        const healthBarY = screenPos.y - 10 / Renderer.zoomFactor;
+
         ctx.fillStyle = "#900";
-        ctx.fillRect(screenX, screenY - 10, monster.width, 5);
+        ctx.fillRect(screenPos.x, healthBarY, screenWidth, healthBarHeight);
         ctx.fillStyle = "#090";
-        ctx.fillRect(screenX, screenY - 10, monster.width * healthPercent, 5);
+        ctx.fillRect(
+          screenPos.x,
+          healthBarY,
+          screenWidth * healthPercent,
+          healthBarHeight
+        );
 
         // Reset fill style for next monster
         ctx.fillStyle = this.settings.color;

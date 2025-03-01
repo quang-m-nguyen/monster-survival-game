@@ -274,11 +274,9 @@ const LevelSystem = {
   handleClick: function (x, y) {
     if (this.availableUpgrades <= 0) return false;
 
-    // Check if click is within the upgrade panel area
-    const panelX = 20;
-    const panelY = Renderer.canvas.height - 100;
-    const iconSize = 50;
-    const iconGap = 10;
+    // Get panel dimensions based on screen size
+    const panelDimensions = this.getUpgradePanelDimensions();
+    const { panelX, panelY, iconSize, iconGap } = panelDimensions;
 
     for (let i = 0; i < this.upgradeChoices.length; i++) {
       const iconX = panelX + i * (iconSize + iconGap);
@@ -295,6 +293,26 @@ const LevelSystem = {
     }
 
     return false;
+  },
+
+  // Get panel dimensions based on screen size
+  getUpgradePanelDimensions: function () {
+    const canvasWidth = Renderer.canvas.width;
+    const canvasHeight = Renderer.canvas.height;
+    const isMobile = canvasWidth < 768; // Consider screens less than 768px as mobile
+
+    // Scale icon size based on screen width
+    const baseIconSize = 50;
+    const iconSize = isMobile
+      ? Math.max(30, Math.floor(canvasWidth * 0.08))
+      : baseIconSize;
+    const iconGap = isMobile ? 5 : 10;
+
+    // Position panel based on screen size
+    const panelX = 20;
+    const panelY = canvasHeight - (isMobile ? 100 : 120);
+
+    return { panelX, panelY, iconSize, iconGap, isMobile };
   },
 
   // Update level system
@@ -380,10 +398,9 @@ const LevelSystem = {
 
   // Draw the upgrade panel in the corner
   drawUpgradePanel: function (ctx) {
-    const panelX = 20;
-    const panelY = Renderer.canvas.height - 100;
-    const iconSize = 50;
-    const iconGap = 10;
+    // Get responsive dimensions
+    const { panelX, panelY, iconSize, iconGap, isMobile } =
+      this.getUpgradePanelDimensions();
     const totalWidth = (iconSize + iconGap) * this.upgradeChoices.length;
 
     // Draw panel background
@@ -392,7 +409,7 @@ const LevelSystem = {
 
     // Draw available upgrades text
     ctx.fillStyle = "white";
-    ctx.font = "16px Arial";
+    ctx.font = isMobile ? "14px Arial" : "16px Arial";
     ctx.textAlign = "left";
     ctx.fillText(
       `Available Upgrades: ${this.availableUpgrades}`,
@@ -418,20 +435,28 @@ const LevelSystem = {
 
       // Draw icon
       ctx.fillStyle = "white";
-      ctx.font = "24px Arial";
+      ctx.font = isMobile ? "18px Arial" : "24px Arial";
       ctx.textAlign = "center";
-      ctx.fillText(choice.icon, iconX + iconSize / 2, iconY + iconSize / 2 + 8);
+      ctx.fillText(
+        choice.icon,
+        iconX + iconSize / 2,
+        iconY + iconSize / 2 + (isMobile ? 6 : 8)
+      );
 
       // Draw hotkey
-      ctx.font = "14px Arial";
-      ctx.fillText(choice.hotkey, iconX + iconSize / 2, iconY + iconSize - 5);
+      ctx.font = isMobile ? "12px Arial" : "14px Arial";
+      ctx.fillText(
+        choice.hotkey,
+        iconX + iconSize / 2,
+        iconY + iconSize - (isMobile ? 3 : 5)
+      );
     }
 
     // Draw hint text
-    ctx.font = "14px Arial";
+    ctx.font = isMobile ? "12px Arial" : "14px Arial";
     ctx.textAlign = "left";
     ctx.fillText(
-      "Press key or click to upgrade",
+      isMobile ? "Tap or press key" : "Press key or click to upgrade",
       panelX,
       panelY + iconSize + 20
     );
