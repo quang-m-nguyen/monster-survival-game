@@ -75,19 +75,37 @@ const LevelSystem = {
     this.upgradeResultTimer = 0;
   },
 
-  // Calculate monsters needed for next level (more linear progression)
+  // Calculate monsters needed for next level (balanced progression)
   calculateMonstersForNextLevel: function () {
-    // Original exponential formula: Math.pow(2, this.currentLevel - 1)
-    // New formula: Base + level * multiplier
-    const baseMonsters = 1;
-    const monstersPerLevel = 2;
-    return baseMonsters + (this.currentLevel - 1) * monstersPerLevel;
+    // Easy early game (levels 1-5)
+    if (this.currentLevel <= 1) {
+      return 1; // Level 1: 1 monster
+    } else if (this.currentLevel <= 5) {
+      return 2; // Levels 2-5: 2 monsters each
+    } else if (this.currentLevel <= 10) {
+      // Levels 6-10: Gradual increase
+      return 3 + Math.floor((this.currentLevel - 5) / 2);
+    } else if (this.currentLevel <= 20) {
+      // Levels 11-20: Moderate increase to slow down progression
+      return 6 + Math.floor((this.currentLevel - 10) / 2);
+    } else {
+      // Levels 21+: More significant increase to prevent excessive leveling
+      return 11 + (this.currentLevel - 20);
+    }
 
-    // This creates a linear progression:
+    // This creates a balanced progression:
     // Level 1: 1 monster
-    // Level 2: 3 monsters
-    // Level 3: 5 monsters
-    // Level 4: 7 monsters
+    // Levels 2-5: 2 monsters each
+    // Levels 6-7: 3 monsters each
+    // Levels 8-9: 4 monsters each
+    // Level 10: 5 monsters
+    // Levels 11-12: 6 monsters each
+    // Levels 13-14: 7 monsters each
+    // Levels 15-16: 8 monsters each
+    // Levels 17-18: 9 monsters each
+    // Levels 19-20: 10 monsters each
+    // Level 21: 12 monsters
+    // Level 22: 13 monsters
     // etc.
   },
 
@@ -120,13 +138,49 @@ const LevelSystem = {
       // Increase bullet size
       this.increaseBulletSize();
 
-      // Increase monster difficulty
-      Monsters.settings.speed += 0.1;
+      // Increase monster difficulty with diminishing returns
+      this.increaseMonsterDifficulty();
 
       return true;
     }
 
     return false;
+  },
+
+  // Increase monster difficulty with diminishing returns
+  increaseMonsterDifficulty: function () {
+    // Calculate speed increase with diminishing returns
+    let speedIncrease;
+
+    if (this.currentLevel <= 5) {
+      // Early levels: Normal speed increase
+      speedIncrease = 0.1;
+    } else if (this.currentLevel <= 10) {
+      // Mid levels: Slightly reduced speed increase
+      speedIncrease = 0.08;
+    } else if (this.currentLevel <= 15) {
+      // Higher levels: Further reduced speed increase
+      speedIncrease = 0.05;
+    } else if (this.currentLevel <= 20) {
+      // Very high levels: Minimal speed increase
+      speedIncrease = 0.03;
+    } else {
+      // Beyond level 20: Extremely small speed increase
+      speedIncrease = 0.02;
+    }
+
+    // Apply the calculated speed increase
+    Monsters.settings.speed += speedIncrease;
+
+    // Optionally show a message about monster difficulty
+    if (this.currentLevel % 5 === 0) {
+      Game.showMessage(
+        `Monsters are getting stronger! Speed: ${Monsters.settings.speed.toFixed(
+          1
+        )}`,
+        120
+      );
+    }
   },
 
   // Increase player size on level up

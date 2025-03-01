@@ -31,12 +31,21 @@ As you level up:
 - You can choose from four different upgrades
 - Monsters become faster and more challenging
 
-The number of monsters required to level up follows a linear progression:
-- Level 1: 1 monster
-- Level 2: 3 monsters
-- Level 3: 5 monsters
-- Level 4: 7 monsters
-And so on, adding 2 more monsters per level.
+The game features a balanced progression system:
+
+### Monster Requirements
+- **Early Game (Levels 1-5)**: Easy progression with 1-2 monsters per level
+- **Mid Game (Levels 6-10)**: Gradual increase from 3-5 monsters
+- **Late Game (Levels 11-20)**: Moderate increase from 6-10 monsters
+- **End Game (Level 21+)**: More significant scaling to prevent excessive leveling
+
+### Monster Difficulty
+The game implements a diminishing returns system for monster speed:
+- **Early Levels**: Normal speed increases
+- **Mid Levels**: Slightly reduced speed increases
+- **Higher Levels**: Minimal speed increases
+
+This creates a challenging but fair experience that remains playable even at higher levels.
 
 ## Weapon Upgrade System
 
