@@ -9,6 +9,7 @@ const Game = {
   score: 0,
   gameOver: false,
   gamePaused: false,
+  gameSpeedMultiplier: 0.5, // 50% of normal speed (50% slower)
 
   // World settings
   worldSize: {
@@ -54,8 +55,14 @@ const Game = {
     Monsters.init();
     LevelSystem.init();
 
+    // Set game speed to 50% (50% slower)
+    this.gameSpeedMultiplier = 0.5;
+
     // Show initial auto-fire message
     this.showMessage("Auto-fire enabled - Press F to toggle", 120);
+
+    // Show game speed message
+    this.showMessage("Game speed set to 50% (Press G to toggle)", 180);
 
     // Start game loop
     console.log("Starting game loop...");
@@ -96,6 +103,19 @@ const Game = {
     if (this.messageTimer > 0) {
       this.messageTimer--;
     }
+  },
+
+  // Toggle game speed between normal (1.0) and slow (0.5)
+  toggleGameSpeed: function () {
+    if (this.gameSpeedMultiplier === 1.0) {
+      this.gameSpeedMultiplier = 0.5; // 50% speed (50% slower)
+      this.showMessage("Game speed: 50% (slower)", 120);
+    } else {
+      this.gameSpeedMultiplier = 1.0; // 100% normal speed
+      this.showMessage("Game speed: 100% (normal)", 120);
+    }
+    console.log("Game speed set to: " + this.gameSpeedMultiplier * 100 + "%");
+    return this.gameSpeedMultiplier;
   },
 
   // Draw everything on the canvas
@@ -214,6 +234,8 @@ const Game = {
     this.score = 0;
     this.message = "";
     this.messageTimer = 0;
+
+    // Keep current game speed setting on restart
 
     // Reset modules
     Player.reset();

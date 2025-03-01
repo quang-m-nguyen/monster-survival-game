@@ -114,8 +114,8 @@ const Monsters = {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance > 0) {
-        monster.x += (dx / distance) * monster.speed;
-        monster.y += (dy / distance) * monster.speed;
+        monster.x += (dx / distance) * monster.speed * Game.gameSpeedMultiplier;
+        monster.y += (dy / distance) * monster.speed * Game.gameSpeedMultiplier;
       }
 
       // Check for collision with player

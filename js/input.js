@@ -50,6 +50,12 @@ const Input = {
         return;
       }
 
+      // Toggle game speed with 'G' key
+      if (e.key === "g" || e.key === "G") {
+        Game.toggleGameSpeed();
+        return;
+      }
+
       // Manual fire with space (even with auto-fire enabled)
       if (e.key === " " && Player.shootCooldown <= 0) {
         Bullets.create();

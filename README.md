@@ -7,6 +7,7 @@ A top-down survival game where you fight off endless waves of monsters while lev
 - Free movement in all directions
 - Automatic shooting in four directions (up, down, left, right)
 - Toggle auto-fire on/off
+- Adjustable game speed (normal or 50% slower)
 - Monster spawning from all sides
 - Level-up system with weapon upgrades
 - Player and bullet size increases with level
@@ -22,6 +23,7 @@ A top-down survival game where you fight off endless waves of monsters while lev
 - **WASD or Arrow Keys**: Move the player
 - **Auto-fire**: Automatically shoots in the current direction
 - **F**: Toggle auto-fire on/off
+- **G**: Toggle game speed between normal and 50% (50% slower)
 - **Space**: Shoot manually (even with auto-fire on)
 - **1, 2, 3, 4**: Select upgrade option when available
 - **Mouse**: Click on upgrade icons to apply upgrades

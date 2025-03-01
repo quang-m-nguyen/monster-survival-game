@@ -101,14 +101,14 @@ const Bullets = {
     for (let i = 0; i < this.list.length; i++) {
       const bullet = this.list[i];
 
-      // Move bullet
-      bullet.x += bullet.velocityX;
-      bullet.y += bullet.velocityY;
+      // Move bullet with game speed multiplier
+      bullet.x += bullet.velocityX * Game.gameSpeedMultiplier;
+      bullet.y += bullet.velocityY * Game.gameSpeedMultiplier;
 
       // Update distance traveled
       bullet.distance += Math.sqrt(
-        bullet.velocityX * bullet.velocityX +
-          bullet.velocityY * bullet.velocityY
+        (bullet.velocityX * Game.gameSpeedMultiplier) ** 2 +
+          (bullet.velocityY * Game.gameSpeedMultiplier) ** 2
       );
 
       // Remove bullets that are off screen or exceed range
