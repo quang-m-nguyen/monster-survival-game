@@ -321,9 +321,9 @@ const LevelSystem = {
     let panelX, panelY;
 
     if (isMobile) {
-      // For mobile: position on the right side of the screen
-      panelX = canvasWidth - iconSize - 20;
-      panelY = Math.max(150, canvasHeight * 0.25); // Start higher on the screen
+      // For mobile: position on the left side of the screen, above health bar
+      panelX = 20;
+      panelY = canvasHeight - 200; // Position above health bar
     } else {
       // For desktop: position at the bottom left
       panelX = 20;
@@ -351,23 +351,23 @@ const LevelSystem = {
 
   // Draw level information
   draw: function (ctx) {
-    // Draw level info
+    // Draw level info - moved closer to score
     ctx.fillStyle = "white";
     ctx.font = "24px Arial";
     ctx.textAlign = "left";
-    ctx.fillText("Level: " + this.currentLevel, 20, 120);
+    ctx.fillText("Level: " + this.currentLevel, 20, 90);
     ctx.fillText(
       "Monsters to next level: " +
         (this.monstersToNextLevel - this.monstersKilled),
       20,
-      150
+      120
     );
 
     // Draw level progress bar
     const progressWidth = 200;
     const progressHeight = 10;
     const progressX = 20;
-    const progressY = 160;
+    const progressY = 130;
     const progressPercent = this.monstersKilled / this.monstersToNextLevel;
 
     ctx.fillStyle = "#555";

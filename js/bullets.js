@@ -118,10 +118,10 @@ const Bullets = {
       // Determine target position based on whether we're using mouse or touch
       let targetX, targetY;
 
-      if (Input.isMobile && Input.isTouching) {
-        // Use touch position for mobile
-        targetX = Input.touchX;
-        targetY = Input.touchY;
+      if (Input.isMobile) {
+        // Use touch position for mobile (or last touch position if not touching)
+        targetX = Input.isTouching ? Input.touchX : Input.lastTouchX;
+        targetY = Input.isTouching ? Input.touchY : Input.lastTouchY;
         console.log(`Using touch target: ${targetX}, ${targetY}`);
       } else {
         // Use mouse position for desktop

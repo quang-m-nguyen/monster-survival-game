@@ -14,6 +14,8 @@ const Input = {
   isTouching: false,
   touchX: 0,
   touchY: 0,
+  lastTouchX: 0, // Store last touch position for direction after release
+  lastTouchY: 0,
   touchTargetX: 0, // World coordinates target position
   touchTargetY: 0,
   isMobile: false, // Flag to detect mobile devices
@@ -127,6 +129,8 @@ const Input = {
         const touch = e.touches[0];
         this.touchX = touch.clientX - rect.left;
         this.touchY = touch.clientY - rect.top;
+        this.lastTouchX = this.touchX; // Store last touch position
+        this.lastTouchY = this.touchY;
         this.isTouching = true;
 
         // Check if touch is on upgrade panel first
@@ -149,6 +153,8 @@ const Input = {
         const touch = e.touches[0];
         this.touchX = touch.clientX - rect.left;
         this.touchY = touch.clientY - rect.top;
+        this.lastTouchX = this.touchX; // Update last touch position
+        this.lastTouchY = this.touchY;
 
         // Update movement target while dragging
         this.handleMovementInput(this.touchX, this.touchY);
@@ -166,6 +172,7 @@ const Input = {
       (e) => {
         e.preventDefault(); // Prevent scrolling
         this.isTouching = false;
+        // Note: We don't reset touchX/Y here so the last position is preserved
       },
       { passive: false }
     );

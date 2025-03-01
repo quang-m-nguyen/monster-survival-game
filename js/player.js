@@ -471,10 +471,10 @@ const Player = {
     // Determine target position based on input type
     let targetX, targetY;
 
-    if (Input.isMobile && Input.isTouching) {
-      // Use touch position for mobile
-      targetX = Input.touchX;
-      targetY = Input.touchY;
+    if (Input.isMobile) {
+      // Use touch position for mobile (or last touch position if not touching)
+      targetX = Input.isTouching ? Input.touchX : Input.lastTouchX;
+      targetY = Input.isTouching ? Input.touchY : Input.lastTouchY;
     } else if (!Input.isMobile) {
       // Use mouse position for desktop
       targetX = Input.mouseX;

@@ -414,11 +414,11 @@ const Renderer = {
       this.canvas.height - 15
     );
 
-    // Draw score and position
+    // Draw score - moved to be with level info
     this.ctx.fillStyle = "white";
     this.ctx.font = "24px Arial";
     this.ctx.textAlign = "left";
-    this.ctx.fillText("Score: " + score, 20, 30);
+    this.ctx.fillText("Score: " + score, 20, 60);
 
     // Draw game over message
     if (gameOver) {
