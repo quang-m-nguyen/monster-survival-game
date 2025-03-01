@@ -20,7 +20,7 @@ A top-down survival game where you fight off endless waves of monsters while lev
 - **Auto-fire**: Automatically shoots in the current direction
 - **F**: Toggle auto-fire on/off
 - **Space**: Shoot manually (even with auto-fire on)
-- **1, 2, 3**: Select upgrade option when leveling up
+- **1, 2, 3, 4**: Select upgrade option when leveling up
 - **R**: Restart the game when game over
 
 ## Level Progression
@@ -28,8 +28,15 @@ A top-down survival game where you fight off endless waves of monsters while lev
 As you level up:
 - Your character and bullets grow in size (up to 2x the original size)
 - You gain more health and slightly increased speed
-- You can choose from three different upgrades
+- You can choose from four different upgrades
 - Monsters become faster and more challenging
+
+The number of monsters required to level up follows a linear progression:
+- Level 1: 1 monster
+- Level 2: 3 monsters
+- Level 3: 5 monsters
+- Level 4: 7 monsters
+And so on, adding 2 more monsters per level.
 
 ## Weapon Upgrade System
 
@@ -38,6 +45,7 @@ When you level up, you can choose from the following upgrades:
 1. **Attack Speed**: Decreases the cooldown between shots
 2. **Attack Damage**: Increases the damage dealt by each bullet
 3. **Life Steal**: Increases health recovery when killing monsters
+4. **Multi-Shot**: Adds an additional bullet stream, allowing you to fire in multiple directions simultaneously
 
 ## Project Structure
 

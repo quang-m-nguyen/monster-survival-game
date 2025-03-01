@@ -16,6 +16,7 @@ const Bullets = {
     cooldown: 15, // Frames between shots
     range: 500, // Maximum bullet travel distance
     damage: 10, // Base damage per bullet
+    streams: 1, // Number of bullet streams (directions) fired at once
   },
 
   // Initialize bullets
@@ -24,46 +25,68 @@ const Bullets = {
     // Reset bullet size to original
     this.settings.width = this.settings.originalWidth;
     this.settings.height = this.settings.originalHeight;
+    this.settings.streams = 1; // Reset streams to 1
   },
 
   // Create a new bullet
   create: function () {
     if (Player.shootCooldown <= 0) {
-      // Create a new bullet based on player direction
-      let bulletX = Player.x;
-      let bulletY = Player.y + Player.height / 2 - this.settings.height / 2;
-      let velocityX = 0;
-      let velocityY = 0;
+      // Get the primary direction (player's current direction)
+      const primaryDirection = Player.direction;
 
-      switch (Player.direction) {
-        case "right":
-          bulletX = Player.x + Player.width;
-          velocityX = this.settings.speed;
-          break;
-        case "left":
-          bulletX = Player.x - this.settings.width;
-          velocityX = -this.settings.speed;
-          break;
-        case "up":
-          bulletX = Player.x + Player.width / 2 - this.settings.width / 2;
-          bulletY = Player.y - this.settings.height;
-          velocityY = -this.settings.speed;
-          break;
-        case "down":
-          bulletX = Player.x + Player.width / 2 - this.settings.width / 2;
-          bulletY = Player.y + Player.height;
-          velocityY = this.settings.speed;
-          break;
+      // Array to hold all directions to fire in
+      const directionsToFire = [primaryDirection];
+
+      // Add additional directions based on streams count
+      if (this.settings.streams > 1) {
+        const allDirections = ["right", "up", "left", "down"];
+        const primaryIndex = allDirections.indexOf(primaryDirection);
+
+        // Add directions clockwise from the primary direction
+        for (let i = 1; i < this.settings.streams; i++) {
+          const nextIndex = (primaryIndex + i) % 4;
+          directionsToFire.push(allDirections[nextIndex]);
+        }
       }
 
-      this.list.push({
-        x: bulletX,
-        y: bulletY,
-        width: this.settings.width,
-        height: this.settings.height,
-        velocityX,
-        velocityY,
-        distance: 0,
+      // Create bullets for each direction
+      directionsToFire.forEach((direction) => {
+        let bulletX = Player.x;
+        let bulletY = Player.y + Player.height / 2 - this.settings.height / 2;
+        let velocityX = 0;
+        let velocityY = 0;
+
+        switch (direction) {
+          case "right":
+            bulletX = Player.x + Player.width;
+            velocityX = this.settings.speed;
+            break;
+          case "left":
+            bulletX = Player.x - this.settings.width;
+            velocityX = -this.settings.speed;
+            break;
+          case "up":
+            bulletX = Player.x + Player.width / 2 - this.settings.width / 2;
+            bulletY = Player.y - this.settings.height;
+            velocityY = -this.settings.speed;
+            break;
+          case "down":
+            bulletX = Player.x + Player.width / 2 - this.settings.width / 2;
+            bulletY = Player.y + Player.height;
+            velocityY = this.settings.speed;
+            break;
+        }
+
+        this.list.push({
+          x: bulletX,
+          y: bulletY,
+          width: this.settings.width,
+          height: this.settings.height,
+          velocityX,
+          velocityY,
+          distance: 0,
+          direction: direction, // Store the direction for reference
+        });
       });
 
       // Set cooldown

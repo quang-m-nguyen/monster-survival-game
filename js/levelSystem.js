@@ -46,6 +46,16 @@ const LevelSystem = {
         return `Life steal increased to ${Player.lifeStealAmount} health per kill!`;
       },
     },
+    {
+      name: "Multi-Shot",
+      description: "Add an additional bullet stream",
+      icon: "🔫",
+      apply: function () {
+        // Increase number of bullet streams
+        Bullets.settings.streams++;
+        return `Multi-Shot! Now firing ${Bullets.settings.streams} bullet streams!`;
+      },
+    },
   ],
   selectedUpgrade: -1,
   upgradeResult: "",
@@ -65,9 +75,20 @@ const LevelSystem = {
     this.upgradeResultTimer = 0;
   },
 
-  // Calculate monsters needed for next level (exponential growth)
+  // Calculate monsters needed for next level (more linear progression)
   calculateMonstersForNextLevel: function () {
-    return Math.pow(2, this.currentLevel - 1);
+    // Original exponential formula: Math.pow(2, this.currentLevel - 1)
+    // New formula: Base + level * multiplier
+    const baseMonsters = 1;
+    const monstersPerLevel = 2;
+    return baseMonsters + (this.currentLevel - 1) * monstersPerLevel;
+
+    // This creates a linear progression:
+    // Level 1: 1 monster
+    // Level 2: 3 monsters
+    // Level 3: 5 monsters
+    // Level 4: 7 monsters
+    // etc.
   },
 
   // Handle monster kill and check for level up
@@ -168,10 +189,12 @@ const LevelSystem = {
   handleInput: function (key) {
     if (!this.showingUpgradeChoices) return false;
 
-    if (key === "1" || key === "2" || key === "3") {
+    if (key === "1" || key === "2" || key === "3" || key === "4") {
       const index = parseInt(key) - 1;
-      this.selectUpgrade(index);
-      return true;
+      if (index < this.upgradeChoices.length) {
+        this.selectUpgrade(index);
+        return true;
+      }
     }
 
     return false;
@@ -264,7 +287,7 @@ const LevelSystem = {
       // Draw instructions
       ctx.font = "18px Arial";
       ctx.fillText(
-        "Press 1, 2, or 3 to select",
+        "Press 1, 2, 3, or 4 to select",
         Renderer.canvas.width / 2,
         140
       );
@@ -273,8 +296,10 @@ const LevelSystem = {
       const choiceWidth = 200;
       const choiceHeight = 220;
       const choiceGap = 30;
-      const startX =
-        (Renderer.canvas.width - (choiceWidth * 3 + choiceGap * 2)) / 2;
+      const totalWidth =
+        choiceWidth * this.upgradeChoices.length +
+        choiceGap * (this.upgradeChoices.length - 1);
+      const startX = (Renderer.canvas.width - totalWidth) / 2;
       const startY = 180;
 
       for (let i = 0; i < this.upgradeChoices.length; i++) {
